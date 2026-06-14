@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Film+ · Watch Party</title>
+    <link rel="icon" href="img/pic2.jpg" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" />
+    <link rel="stylesheet" href="watchparty-page.css" />
+</head>
+
+<body>
+
+    <!-- ── AMBIENT BACKGROUND ── -->
+    <div class="wp-ambient" aria-hidden="true">
+        <div class="wp-ambient__orb wp-ambient__orb--1"></div>
+        <div class="wp-ambient__orb wp-ambient__orb--2"></div>
+        <div class="wp-ambient__orb wp-ambient__orb--3"></div>
+        <div class="wp-noise"></div>
+    </div>
+
+    <!-- ── TOP BAR ── -->
+    <header class="wp-header">
+        <a href="index.html" class="wp-header__logo">
+            <img src="img/pic2.jpg" alt="Film+" />
+            <span>Film<span class="wp-logo-plus">+</span></span>
+        </a>
+
+        <div class="wp-header__meta">
+            <div class="wp-live-badge" id="wpLiveBadge">
+                <span class="wp-live-dot"></span>
+                <span class="wp-live-label">Connecting…</span>
+            </div>
+            <div class="wp-viewer-badge" id="wpViewerBadge">
+                <i class='bx bxs-group'></i>
+                <span id="wpViewerCount">1</span>
+            </div>
+        </div>
+
+        <nav class="wp-header__actions">
+            <button class="wp-btn wp-btn--ghost" id="wpShareBtn" title="Share party link">
+                <i class='bx bx-share-alt'></i>
+                <span>Invite</span>
+            </button>
+            <button class="wp-btn wp-btn--danger wp-host-only" id="wpEndPartyBtn" title="End party for everyone">
+                <i class='bx bx-stop-circle'></i>
+                <span>End Party</span>
+            </button>
+            <a href="index.html" class="wp-btn wp-btn--ghost wp-guest-only" id="wpLeaveBtn" title="Leave party">
+                <i class='bx bx-log-out'></i>
+                <span>Leave</span>
+            </a>
+        </nav>
+    </header>
+
+    <!-- ── MAIN LAYOUT ── -->
+    <main class="wp-stage">
+
+        <!-- LEFT: Video + controls -->
+        <section class="wp-video-col">
+
+            <div class="wp-movie-info">
+                <h1 class="wp-movie-title" id="wpMovieTitle">Loading…</h1>
+                <div class="wp-badges" id="wpBadges">
+                    <span class="wp-role-badge" id="wpRoleBadge">Host</span>
+                    <span class="wp-sync-badge" id="wpSyncBadge">Syncing…</span>
+                </div>
+            </div>
+
+            <div class="wp-player-wrap" id="wpPlayerWrap">
+                <video id="partyMoviePlayer" controls playsinline preload="auto">
+                    Your browser does not support video.
+                </video>
+                <!-- floating reaction burst -->
+                <div class="wp-reaction-burst" id="wpReactionBurst" aria-hidden="true"></div>
+            </div>
+
+            <!-- Emoji bar -->
+            <div class="wp-emoji-row" id="wpEmojiRow">
+                <span class="wp-emoji-label">React</span>
+                <div class="wp-emoji-btns" id="partyEmojiBar"></div>
+            </div>
+
+            <!-- Share link row (always visible for host on desktop, collapsible on mobile) -->
+            <div class="wp-share-row" id="wpShareRow">
+                <div class="wp-share-inner">
+                    <i class='bx bx-link'></i>
+                    <input type="text" id="partyLink" readonly class="wp-link-input" placeholder="Party link…" />
+                    <button id="copyPartyLink" class="wp-btn wp-btn--accent">
+                        <i class='bx bx-copy'></i>
+                        <span>Copy</span>
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- RIGHT: Chat panel -->
+        <aside class="wp-chat-col">
+
+            <div class="wp-chat-header">
+                <i class='bx bx-chat'></i>
+                <span>Party Chat</span>
+                <button class="wp-chat-toggle" id="wpChatToggle" title="Toggle chat" aria-label="Toggle chat panel">
+                    <i class='bx bx-chevron-down'></i>
+                </button>
+            </div>
+
+            <div class="wp-chat-body" id="wpChatBody">
+                <div class="wp-chat-messages" id="partyChatMessages">
+                    <!-- messages injected here -->
+                    <div class="wp-chat-empty">
+                        <i class='bx bx-popcorn'></i>
+                        <p>No messages yet — Send Text</p>
+                    </div>
+                </div>
+
+                <div class="wp-chat-input-wrap">
+                    <!-- ── DEFAULT: text + mic ── -->
+                    <form id="partyChatForm" class="wp-chat-form" data-state="idle">
+                        <input type="text" id="partyChatInput" class="wp-chat-input" placeholder="Say something…"
+                            autocomplete="off" maxlength="300" />
+                        <button type="submit" class="wp-send-btn" aria-label="Send">
+                            <i class='bx bx-send'></i>
+                        </button>
+                        <button type="button" class="wp-mic-btn" id="wpMicBtn" aria-label="Record voice note" title="Hold or click to record">
+                            <i class='bx bx-microphone'></i>
+                        </button>
+                    </form>
+
+                    <!-- ── RECORDING state ── -->
+                    <div class="wp-voice-recording" id="wpVoiceRecording" hidden>
+                        <div class="wp-voice-rec-left">
+                            <span class="wp-rec-dot"></span>
+                            <span class="wp-rec-timer" id="wpRecTimer">0:00</span>
+                            <div class="wp-rec-waveform" id="wpRecWaveform">
+                                <!-- bars injected by JS -->
+                            </div>
+                        </div>
+                        <div class="wp-voice-rec-actions">
+                            <button type="button" class="wp-rec-cancel" id="wpRecCancel" title="Cancel">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                            <button type="button" class="wp-rec-stop" id="wpRecStop" title="Stop & preview">
+                                <i class='bx bx-stop'></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ── PREVIEW state ── -->
+                    <div class="wp-voice-preview" id="wpVoicePreview" hidden>
+                        <button type="button" class="wp-preview-play" id="wpPreviewPlay" aria-label="Play preview">
+                            <i class='bx bx-play'></i>
+                        </button>
+                        <div class="wp-preview-bar-wrap">
+                            <div class="wp-preview-bar" id="wpPreviewBar">
+                                <div class="wp-preview-progress" id="wpPreviewProgress"></div>
+                            </div>
+                            <span class="wp-preview-dur" id="wpPreviewDur">0:00</span>
+                        </div>
+                        <button type="button" class="wp-preview-discard" id="wpPreviewDiscard" title="Discard">
+                            <i class='bx bx-x'></i>
+                        </button>
+                        <button type="button" class="wp-preview-send" id="wpPreviewSend" aria-label="Send voice note">
+                            <i class='bx bx-send'></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <!-- ── INVITE MODAL (shown when Share clicked on mobile) ── -->
+    <div class="wp-modal-overlay" id="wpInviteOverlay" hidden>
+        <div class="wp-invite-modal">
+            <button class="wp-invite-close" id="wpInviteClose"><i class='bx bx-x'></i></button>
+            <h3>Invite Friends</h3>
+            <p>Share this link so friends can join your watch party:</p>
+            <div class="wp-invite-link-row">
+                <input type="text" id="wpInviteLink" readonly />
+                <button id="wpInviteCopy" class="wp-btn wp-btn--accent">
+                    <i class='bx bx-copy'></i> Copy
+                </button>
+            </div>
+            <div class="wp-share-socials">
+                <button class="wp-social-btn" id="wpShareWhatsapp">
+                    <i class='bx bxl-whatsapp'></i> WhatsApp
+                </button>
+                <button class="wp-social-btn" id="wpShareTelegram">
+                    <i class='bx bxl-telegram'></i> Telegram
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SCRIPTS ── -->
+    <script>
+        /* ══════════════════════════════════════════════════════════════════
+           Watch Party Page Bootstrap
+           - Reads ?party=ID&src=URL&host=1 from query string
+           - Wires up all UI to the Firebase backend in watchparty.js
+        ══════════════════════════════════════════════════════════════════ */
+
+        const _params = new URLSearchParams(window.location.search);
+        const _partyId = _params.get('party');
+        const _srcRaw = _params.get('src');
+        const _src = _srcRaw ? decodeURIComponent(_srcRaw) : '';
+        const _hostMode = _params.get('host') === '1';
+
+        /* ── helpers ── */
+        function getDisplayName() {
+            try {
+                const ud = JSON.parse(localStorage.getItem('userData'));
+                if (ud && ud.name) return ud.name;
+            } catch (_) { }
+            return 'Guest';
+        }
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        /* ── role UI ── */
+        function applyRoleUI(isHost) {
+            document.querySelectorAll('.wp-host-only').forEach(el => {
+                el.style.display = isHost ? '' : 'none';
+            });
+            document.querySelectorAll('.wp-guest-only').forEach(el => {
+                el.style.display = isHost ? 'none' : '';
+            });
+            const badge = document.getElementById('wpRoleBadge');
+            if (badge) {
+                badge.textContent = isHost ? 'Host' : 'Guest';
+                badge.className = 'wp-role-badge ' + (isHost ? 'is-host' : 'is-guest');
+            }
+        }
+        applyRoleUI(_hostMode);
+
+        /* ── movie title + video ── */
+        const _player = document.getElementById('partyMoviePlayer');
+        if (_src) _player.src = _src;
+
+        const _titleEl = document.getElementById('wpMovieTitle');
+        const _titleParam = _params.get('title');
+        if (_titleParam) {
+            _titleEl.textContent = decodeURIComponent(_titleParam);
+        } else if (_src) {
+            _titleEl.textContent = _src.split('/').pop().replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+        }
+
+        /* ── redirect if no party ID ── */
+        if (!_partyId) {
+            document.querySelector('.wp-stage').innerHTML =
+                `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;">
+        <h2 style="color:#ff2c1f;font-size:2rem;margin-bottom:12px">No party found</h2>
+        <p style="color:rgba(255,255,255,.6);margin-bottom:24px">You need a valid invite link to join a watch party.</p>
+        <a href="index.html" style="background:#ff2c1f;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;">← Back to Film+</a>
+      </div>`;
+        }
+
+        /* ── globals expected by watchparty.js & main.js stubs ── */
+        let currentPartyId = _partyId;
+        let isHost = _hostMode;
+        let partySocket = null;   // unused but referenced by stubs
+        let partyClientId = null;
+
+        /* ── setPartySyncStatus (called by watchparty.js) ── */
+        window.setPartySyncStatus = function (text, tone) {
+            const badge = document.getElementById('wpSyncBadge');
+            const liveBadge = document.getElementById('wpLiveBadge');
+            const liveLabel = liveBadge ? liveBadge.querySelector('.wp-live-label') : null;
+            if (badge) {
+                badge.textContent = text;
+                badge.className = 'wp-sync-badge' + (tone === 'good' ? ' is-good' : tone === 'warn' ? ' is-warn' : '');
+            }
+            if (liveLabel) liveLabel.textContent = text;
+            if (liveBadge) {
+                liveBadge.className = 'wp-live-badge' + (tone === 'good' ? ' is-live' : tone === 'warn' ? ' is-warn' : '');
+            }
+        };
+
+        /* ── updateMemberCount (called by watchparty.js) ── */
+        window.updateMemberCount = function (members) {
+            const count = Array.isArray(members) ? members.length : 0;
+            const el = document.getElementById('wpViewerCount');
+            if (el) el.textContent = count;
+        };
+
+        /* ── addChatMessage (called by watchparty.js) ── */
+        window.addChatMessage = function (user, message, explicitTimestamp, shouldBroadcast, isSystem) {
+            if (!message) return;
+
+            const msgs = document.getElementById('partyChatMessages');
+            if (!msgs) return;
+
+            // Remove empty state
+            const empty = msgs.querySelector('.wp-chat-empty');
+            if (empty) empty.remove();
+
+            const player = document.getElementById('partyMoviePlayer');
+            const ts = (typeof explicitTimestamp === 'number' && isFinite(explicitTimestamp))
+                ? explicitTimestamp
+                : (player ? Math.floor(player.currentTime) : 0);
+
+            const item = document.createElement('div');
+            item.className = 'wp-msg' + (isSystem ? ' wp-msg--system' : '') + (user === 'You' ? ' wp-msg--self' : '');
+
+            if (isSystem) {
+                item.innerHTML = `<span class="wp-msg__system-text">✦ ${escHtml(message)}</span>`;
+            } else {
+                const timeStr = formatTime(ts);
+                item.innerHTML = `
+        <div class="wp-msg__meta">
+          <span class="wp-msg__name">${escHtml(user)}</span>
+          <span class="wp-msg__time" data-ts="${ts}" title="Jump to ${timeStr}">${timeStr}</span>
+        </div>
+        <p class="wp-msg__text">${escHtml(message)}</p>`;
+
+                // Click timestamp → seek player
+                item.querySelector('.wp-msg__time').addEventListener('click', () => {
+                    if (player) { player.currentTime = ts; player.play().catch(() => { }); }
+                });
+            }
+
+            msgs.appendChild(item);
+            msgs.scrollTop = msgs.scrollHeight;
+
+            // Broadcast if needed (page handles send separately, but keep compat)
+            if (shouldBroadcast && typeof sendPartyEvent === 'function') {
+                sendPartyEvent('chat-message', { user: getDisplayName(), message, timestamp: ts });
+            }
+        };
+
+        /* ── addPartyReaction (called by watchparty.js) ── */
+        window.addPartyReaction = function (user, reaction, time) {
+            // Show floating burst on video
+            spawnReactionBurst(reaction);
+
+            // Also log in chat panel
+            const msgs = document.getElementById('partyChatMessages');
+            if (!msgs) return;
+            const empty = msgs.querySelector('.wp-chat-empty');
+            if (empty) empty.remove();
+
+            const item = document.createElement('div');
+            item.className = 'wp-msg wp-msg--reaction';
+            const ts = formatTime(time || 0);
+            item.innerHTML = `
+      <span class="wp-msg__emoji">${reaction}</span>
+      <span class="wp-msg__name">${escHtml(user)}</span>
+      <span class="wp-msg__time" style="margin-left:auto">${ts}</span>`;
+            msgs.appendChild(item);
+            msgs.scrollTop = msgs.scrollHeight;
+        };
+
+        /* ── showWatchPartyModal stub (watchparty.js calls this) ── */
+        window.showWatchPartyModal = function (movie, partyId, hostMode) {
+            if (movie && movie.videoSrc && _player && !_player.src) {
+                _player.src = movie.videoSrc;
+            }
+            if (movie && movie.title && _titleEl) {
+                _titleEl.textContent = movie.title;
+            }
+            applyRoleUI(hostMode);
+
+            // Build party link
+            const link = buildPartyLink(partyId, movie ? movie.videoSrc : _src, movie ? movie.title : '');
+            setPartyLinks(link);
+        };
+
+        /* ── hideWatchPartyModal stub (called when host ends party) ── */
+        window.hideWatchPartyModal = function () {
+            window.location.href = 'index.html';
+        };
+
+        /* ── setupChatHandling stub ── */
+        window.setupChatHandling = function () { };
+
+        /* ── sendPartyEvent stub (overridden by watchparty.js) ── */
+        window.sendPartyEvent = function (type, payload) {
+            /* no-op stub; replaced by watchparty.js */
+        };
+
+        /* ── broadcastVideoSync stub ── */
+        window.broadcastVideoSync = function (action, time) { };
+
+        /* ── getPartyDisplayName (used by watchparty.js) ── */
+        window.getPartyDisplayName = getDisplayName;
+
+        /* ── Link helpers ── */
+        function buildPartyLink(partyId, src, title) {
+            const base = `${location.origin}${location.pathname}`;
+            const p = new URLSearchParams({ party: partyId });
+            if (src) p.set('src', encodeURIComponent(src));
+            if (title) p.set('title', encodeURIComponent(title));
+            return base + '?' + p.toString();
+        }
+
+        function setPartyLinks(link) {
+            const inp = document.getElementById('partyLink');
+            if (inp) inp.value = link;
+            const inv = document.getElementById('wpInviteLink');
+            if (inv) inv.value = link;
+        }
+
+        /* ── escHtml ── */
+        function escHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        /* ── Emoji bar ── */
+        const EMOJIS = ['😂', '😮', '😍', '👍', '👎', '🎉', '😢', '🔥', '🍿', '💯'];
+        const emojiBar = document.getElementById('partyEmojiBar');
+        EMOJIS.forEach(emoji => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'wp-emoji-btn';
+            btn.textContent = emoji;
+            btn.setAttribute('aria-label', emoji);
+            btn.addEventListener('click', () => {
+                const time = _player ? Math.floor(_player.currentTime) : 0;
+                addPartyReaction('You', emoji, time);
+                if (typeof window.sendPartyEvent === 'function') {
+                    window.sendPartyEvent('party-reaction', { user: getDisplayName(), reaction: emoji, time });
+                }
+            });
+            emojiBar.appendChild(btn);
+        });
+
+        /* ── Floating reaction burst ── */
+        function spawnReactionBurst(emoji) {
+            const burst = document.getElementById('wpReactionBurst');
+            if (!burst) return;
+            const el = document.createElement('span');
+            el.className = 'wp-burst-emoji';
+            el.textContent = emoji;
+            el.style.left = (20 + Math.random() * 60) + '%';
+            burst.appendChild(el);
+            el.addEventListener('animationend', () => el.remove());
+        }
+
+        /* ── Chat form ── */
+        const chatForm = document.getElementById('partyChatForm');
+        const chatInput = document.getElementById('partyChatInput');
+
+        function doSendChat() {
+            const msg = chatInput.value.trim();
+            if (!msg) return;
+            addChatMessage('You', msg, undefined, false, false);
+            const ts = _player ? Math.floor(_player.currentTime) : 0;
+            if (typeof window.sendPartyEvent === 'function') {
+                window.sendPartyEvent('chat-message', { user: getDisplayName(), message: msg, timestamp: ts });
+            }
+            chatInput.value = '';
+        }
+
+        chatForm.addEventListener('submit', e => { e.preventDefault(); doSendChat(); });
+        chatInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSendChat(); }
+        });
+
+        /* ── Copy link buttons ── */
+        function copyLink(btnEl, inputEl) {
+            if (!inputEl) return;
+            inputEl.select();
+            try { document.execCommand('copy'); } catch (_) { navigator.clipboard?.writeText(inputEl.value); }
+            const orig = btnEl.innerHTML;
+            btnEl.innerHTML = '<i class="bx bx-check"></i> Copied!';
+            setTimeout(() => { btnEl.innerHTML = orig; }, 1800);
+        }
+
+        document.getElementById('copyPartyLink')?.addEventListener('click', () => {
+            copyLink(document.getElementById('copyPartyLink'), document.getElementById('partyLink'));
+        });
+        document.getElementById('wpInviteCopy')?.addEventListener('click', () => {
+            copyLink(document.getElementById('wpInviteCopy'), document.getElementById('wpInviteLink'));
+        });
+
+        /* ── Invite modal ── */
+        const inviteOverlay = document.getElementById('wpInviteOverlay');
+        document.getElementById('wpShareBtn')?.addEventListener('click', () => {
+            inviteOverlay.hidden = false;
+        });
+        document.getElementById('wpInviteClose')?.addEventListener('click', () => {
+            inviteOverlay.hidden = true;
+        });
+        inviteOverlay?.addEventListener('click', e => {
+            if (e.target === inviteOverlay) inviteOverlay.hidden = true;
+        });
+
+        /* ── Social share ── */
+        function getInviteLink() {
+            return document.getElementById('wpInviteLink')?.value || location.href;
+        }
+        document.getElementById('wpShareWhatsapp')?.addEventListener('click', () => {
+            window.open('https://wa.me/?text=' + encodeURIComponent('Join my Film+ Watch Party! ' + getInviteLink()), '_blank');
+        });
+        document.getElementById('wpShareTelegram')?.addEventListener('click', () => {
+            window.open('https://t.me/share/url?url=' + encodeURIComponent(getInviteLink()) + '&text=' + encodeURIComponent('Join my Film+ Watch Party!'), '_blank');
+        });
+
+        /* ── End party button ── */
+        document.getElementById('wpEndPartyBtn')?.addEventListener('click', () => {
+            if (!confirm('End the watch party for everyone?')) return;
+            if (typeof window.endWatchParty === 'function') {
+                window.endWatchParty();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        /* ── Mobile chat toggle ── */
+        const chatToggle = document.getElementById('wpChatToggle');
+        const chatBody = document.getElementById('wpChatBody');
+        chatToggle?.addEventListener('click', () => {
+            const isOpen = chatBody.classList.toggle('is-open');
+            chatToggle.querySelector('i').className = isOpen ? 'bx bx-chevron-up' : 'bx bx-chevron-down';
+        });
+
+        /* ══════════════════════════════════════════════════════════════════
+           VOICE NOTE SYSTEM — WhatsApp-style record → preview → send
+        ══════════════════════════════════════════════════════════════════ */
+        (function () {
+            let _mediaRecorder = null;
+            let _audioChunks = [];
+            let _recordedBlob = null;
+            let _recordedUrl = null;
+            let _recTimerInterval = null;
+            let _recSeconds = 0;
+            let _previewAudio = null;
+            let _analyser = null;
+            let _animFrame = null;
+            let _waveformBars = [];
+            let _audioCtx = null;
+            let _micStream = null;
+
+            const formEl = document.getElementById('partyChatForm');
+            const micBtn = document.getElementById('wpMicBtn');
+            const recordingUI = document.getElementById('wpVoiceRecording');
+            const previewUI = document.getElementById('wpVoicePreview');
+            const recTimer = document.getElementById('wpRecTimer');
+            const recCancel = document.getElementById('wpRecCancel');
+            const recStop = document.getElementById('wpRecStop');
+            const previewPlay = document.getElementById('wpPreviewPlay');
+            const previewProgress = document.getElementById('wpPreviewProgress');
+            const previewDur = document.getElementById('wpPreviewDur');
+            const previewDiscard = document.getElementById('wpPreviewDiscard');
+            const previewSend = document.getElementById('wpPreviewSend');
+            const previewBar = document.getElementById('wpPreviewBar');
+            const waveformContainer = document.getElementById('wpRecWaveform');
+
+            // Build waveform bars
+            const BAR_COUNT = 20;
+            for (let i = 0; i < BAR_COUNT; i++) {
+                const bar = document.createElement('span');
+                waveformContainer.appendChild(bar);
+                _waveformBars.push(bar);
+            }
+
+            function fmtSec(s) {
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return `${m}:${sec.toString().padStart(2, '0')}`;
+            }
+
+            function showState(state) {
+                // state: 'idle' | 'recording' | 'preview'
+                formEl.hidden = state !== 'idle';
+                recordingUI.hidden = state !== 'recording';
+                previewUI.hidden = state !== 'preview';
+            }
+
+            /* ── START RECORDING ── */
+            async function startRecording() {
+                try {
+                    _micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                } catch (err) {
+                    alert('Microphone access denied. Please allow microphone to send voice notes.');
+                    return;
+                }
+
+                // Set up analyser for live waveform
+                _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const source = _audioCtx.createMediaStreamSource(_micStream);
+                _analyser = _audioCtx.createAnalyser();
+                _analyser.fftSize = 64;
+                source.connect(_analyser);
+
+                const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+                    ? 'audio/webm;codecs=opus'
+                    : MediaRecorder.isTypeSupported('audio/webm')
+                        ? 'audio/webm'
+                        : 'audio/ogg;codecs=opus';
+
+                _audioChunks = [];
+                _mediaRecorder = new MediaRecorder(_micStream, { mimeType });
+                _mediaRecorder.ondataavailable = e => { if (e.data.size > 0) _audioChunks.push(e.data); };
+                _mediaRecorder.onstop = onRecordingStop;
+                _mediaRecorder.start(100);
+
+                // Timer
+                _recSeconds = 0;
+                recTimer.textContent = fmtSec(0);
+                _recTimerInterval = setInterval(() => {
+                    _recSeconds++;
+                    recTimer.textContent = fmtSec(_recSeconds);
+                    // Auto-stop at 2 min like WhatsApp
+                    if (_recSeconds >= 120) stopRecording();
+                }, 1000);
+
+                // Animate waveform
+                animateWaveform();
+
+                showState('recording');
+            }
+
+            function animateWaveform() {
+                if (!_analyser) return;
+                const data = new Uint8Array(_analyser.frequencyBinCount);
+                function draw() {
+                    _animFrame = requestAnimationFrame(draw);
+                    _analyser.getByteFrequencyData(data);
+                    _waveformBars.forEach((bar, i) => {
+                        const idx = Math.floor(i * data.length / BAR_COUNT);
+                        const val = data[idx] / 255;
+                        const h = Math.max(3, Math.round(val * 22));
+                        bar.style.height = h + 'px';
+                        bar.style.opacity = 0.4 + val * 0.6;
+                    });
+                }
+                draw();
+            }
+
+            /* ── STOP RECORDING ── */
+            function stopRecording() {
+                if (_mediaRecorder && _mediaRecorder.state !== 'inactive') {
+                    _mediaRecorder.stop();
+                }
+                clearInterval(_recTimerInterval);
+                cancelAnimationFrame(_animFrame);
+                _animFrame = null;
+                if (_micStream) { _micStream.getTracks().forEach(t => t.stop()); _micStream = null; }
+                if (_audioCtx) { _audioCtx.close().catch(() => {}); _audioCtx = null; }
+                _analyser = null;
+                // Reset bars
+                _waveformBars.forEach(b => { b.style.height = '3px'; b.style.opacity = '0.75'; });
+            }
+
+            function onRecordingStop() {
+                _recordedBlob = new Blob(_audioChunks, { type: _mediaRecorder.mimeType });
+                _recordedUrl = URL.createObjectURL(_recordedBlob);
+
+                // Show preview
+                _previewAudio = new Audio(_recordedUrl);
+                _previewAudio.addEventListener('timeupdate', updatePreviewProgress);
+                _previewAudio.addEventListener('ended', onPreviewEnded);
+                _previewAudio.addEventListener('loadedmetadata', () => {
+                    previewDur.textContent = fmtSec(_previewAudio.duration || _recSeconds);
+                });
+
+                previewDur.textContent = fmtSec(_recSeconds);
+                previewProgress.style.width = '0%';
+                previewPlay.querySelector('i').className = 'bx bx-play';
+
+                showState('preview');
+            }
+
+            /* ── CANCEL RECORDING ── */
+            function cancelRecording() {
+                stopRecording();
+                _audioChunks = [];
+                _recordedBlob = null;
+                if (_recordedUrl) { URL.revokeObjectURL(_recordedUrl); _recordedUrl = null; }
+                showState('idle');
+            }
+
+            /* ── PREVIEW CONTROLS ── */
+            function updatePreviewProgress() {
+                if (!_previewAudio || !_previewAudio.duration) return;
+                const pct = (_previewAudio.currentTime / _previewAudio.duration) * 100;
+                previewProgress.style.width = pct + '%';
+                previewDur.textContent = fmtSec(_previewAudio.currentTime);
+            }
+
+            function onPreviewEnded() {
+                previewPlay.querySelector('i').className = 'bx bx-play';
+                previewProgress.style.width = '0%';
+                if (_previewAudio) previewDur.textContent = fmtSec(_previewAudio.duration || _recSeconds);
+            }
+
+            previewPlay.addEventListener('click', () => {
+                if (!_previewAudio) return;
+                if (_previewAudio.paused) {
+                    _previewAudio.play();
+                    previewPlay.querySelector('i').className = 'bx bx-pause';
+                } else {
+                    _previewAudio.pause();
+                    previewPlay.querySelector('i').className = 'bx bx-play';
+                }
+            });
+
+            // Scrub on preview bar click
+            previewBar.addEventListener('click', e => {
+                if (!_previewAudio || !_previewAudio.duration) return;
+                const rect = previewBar.getBoundingClientRect();
+                const pct = (e.clientX - rect.left) / rect.width;
+                _previewAudio.currentTime = pct * _previewAudio.duration;
+            });
+
+            previewDiscard.addEventListener('click', () => {
+                if (_previewAudio) { _previewAudio.pause(); _previewAudio = null; }
+                if (_recordedUrl) { URL.revokeObjectURL(_recordedUrl); _recordedUrl = null; }
+                _recordedBlob = null;
+                showState('idle');
+            });
+
+            /* ── SEND VOICE NOTE ── */
+            previewSend.addEventListener('click', sendVoiceNote);
+
+            async function sendVoiceNote() {
+                if (!_recordedBlob) return;
+                if (_previewAudio) { _previewAudio.pause(); _previewAudio = null; }
+
+                const duration = _recSeconds;
+                const localUrl = _recordedUrl;
+                _recordedUrl = null;
+                _recordedBlob = null;
+
+                // Show in own chat immediately (local blob URL)
+                addVoiceBubble('You', localUrl, duration, true);
+
+                // Convert to base64 for Firebase broadcast
+                const reader = new FileReader();
+                reader.onload = function () {
+                    const base64 = reader.result; // data:audio/webm;base64,...
+                    if (typeof window.sendPartyEvent === 'function') {
+                        window.sendPartyEvent('voice-note', {
+                            user: getDisplayName(),
+                            audioData: base64,
+                            duration: duration,
+                        });
+                    }
+                };
+                reader.readAsDataURL(new Blob(_audioChunks.slice(), { type: _mediaRecorder ? _mediaRecorder.mimeType : 'audio/webm' }));
+                _audioChunks = [];
+
+                showState('idle');
+            }
+
+            /* ── ADD VOICE BUBBLE TO CHAT ── */
+            window.addVoiceBubble = function (user, audioSrc, duration, isSelf) {
+                const msgs = document.getElementById('partyChatMessages');
+                if (!msgs) return;
+                const empty = msgs.querySelector('.wp-chat-empty');
+                if (empty) empty.remove();
+
+                const player = document.getElementById('partyMoviePlayer');
+                const ts = player ? Math.floor(player.currentTime) : 0;
+                const timeStr = fmtSec(ts);
+
+                const item = document.createElement('div');
+                item.className = 'wp-msg wp-msg--voice' + (isSelf ? ' wp-msg--self' : '');
+
+                // Generate a simple waveform pattern (static decorative bars)
+                const bars = Array.from({ length: 28 }, (_, i) => {
+                    const h = 3 + Math.round(Math.abs(Math.sin(i * 0.7 + 1.2)) * 18);
+                    return `<rect x="${i * 5}" y="${(24 - h) / 2}" width="3" height="${h}" rx="1.5" fill="currentColor"/>`;
+                }).join('');
+
+                const durationStr = fmtSec(duration);
+
+                item.innerHTML = `
+                <div class="wp-msg__meta">
+                  <span class="wp-msg__name">${escHtml(user)}</span>
+                  <span class="wp-msg__time">${timeStr}</span>
+                </div>
+                <div class="wp-voice-bubble">
+                  <button class="wp-vb-play" aria-label="Play voice note"><i class="bx bx-play"></i></button>
+                  <div class="wp-vb-track">
+                    <div class="wp-vb-bars">
+                      <svg viewBox="0 0 140 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">${bars}</svg>
+                    </div>
+                    <div class="wp-vb-progress"></div>
+                  </div>
+                  <span class="wp-vb-dur">${durationStr}</span>
+                </div>`;
+
+                // Wire up audio playback
+                const audio = new Audio(audioSrc);
+                const playBtn = item.querySelector('.wp-vb-play');
+                const progressEl = item.querySelector('.wp-vb-progress');
+                const durEl = item.querySelector('.wp-vb-dur');
+
+                audio.addEventListener('timeupdate', () => {
+                    if (!audio.duration) return;
+                    progressEl.style.width = (audio.currentTime / audio.duration * 100) + '%';
+                    durEl.textContent = fmtSec(audio.currentTime);
+                });
+                audio.addEventListener('ended', () => {
+                    playBtn.querySelector('i').className = 'bx bx-play';
+                    progressEl.style.width = '0%';
+                    durEl.textContent = durationStr;
+                });
+                playBtn.addEventListener('click', () => {
+                    // Pause all other voice notes
+                    document.querySelectorAll('.wp-vb-audio-playing').forEach(a => {
+                        a.pause();
+                        a.closest('.wp-msg').querySelector('.wp-vb-play i').className = 'bx bx-play';
+                        a.classList.remove('wp-vb-audio-playing');
+                    });
+                    if (audio.paused) {
+                        audio.play();
+                        audio.classList.add('wp-vb-audio-playing');
+                        // stash on element for above selector
+                        playBtn.closest('.wp-msg')._voiceAudio = audio;
+                        playBtn.querySelector('i').className = 'bx bx-pause';
+                    } else {
+                        audio.pause();
+                        audio.classList.remove('wp-vb-audio-playing');
+                        playBtn.querySelector('i').className = 'bx bx-play';
+                    }
+                });
+
+                // Scrub on track click
+                item.querySelector('.wp-vb-track').addEventListener('click', e => {
+                    if (!audio.duration) return;
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+                });
+
+                msgs.appendChild(item);
+                msgs.scrollTop = msgs.scrollHeight;
+            };
+
+            /* ── MIC BUTTON EVENTS ── */
+            micBtn.addEventListener('click', () => {
+                startRecording();
+            });
+
+            recCancel.addEventListener('click', () => {
+                cancelRecording();
+            });
+
+            recStop.addEventListener('click', () => {
+                stopRecording();
+            });
+
+        })();
+
+        /* ── Init watch party via watchparty.js ── */
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!_partyId) return;
+
+            // Build movie object
+            const movie = {
+                title: _titleParam ? decodeURIComponent(_titleParam) : (_src.split('/').pop().replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ') || 'Film+ Party'),
+                videoSrc: _src,
+            };
+
+            // Set initial link
+            const link = buildPartyLink(_partyId, _src, movie.title);
+            setPartyLinks(link);
+
+            // Bind host video events before Firebase init
+            if (_hostMode && _player) {
+                _player.addEventListener('play', () => { if (typeof broadcastVideoSync === 'function') broadcastVideoSync('play', _player.currentTime); });
+                _player.addEventListener('pause', () => { if (typeof broadcastVideoSync === 'function') broadcastVideoSync('pause', _player.currentTime); });
+                _player.addEventListener('seeked', () => { if (typeof broadcastVideoSync === 'function') broadcastVideoSync('seek', _player.currentTime); });
+            }
+
+            // watchparty.js overrides window.setupWatchParty
+            if (typeof window.setupWatchParty === 'function') {
+                window.setupWatchParty(movie, _partyId, _hostMode);
+            }
+        });
+    </script>
+
+    <!-- Firebase + watch party logic -->
+    <script src="watchparty.js"></script>
+
+</body>
+
+</html>

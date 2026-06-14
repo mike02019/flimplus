@@ -1,0 +1,140 @@
+.auth-container {
+    max-width: 460px;
+    margin: 50px auto;
+    padding: 22px;
+    background: rgba(17, 17, 17, 0.92);
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 44, 31, 0.8), rgba(67, 97, 238, 0.55));
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+.auth-title {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 10px;
+    font-size: 26px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-form input {
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-form input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-form input:focus {
+    border-color: rgba(255, 44, 31, 0.85);
+    box-shadow: 0 0 0 3px rgba(255, 44, 31, 0.18);
+}
+
+.auth-form button {
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #ff2c1f, #e50914);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-weight: 700;
+}
+
+.auth-form button:hover {
+    background: linear-gradient(90deg, #ff3d33, #f40612);
+}
+
+.auth-toggle {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 6px;
+    border-radius: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-toggle a {
+    flex: 1;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.auth-toggle a:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.auth-toggle a.active {
+    background: rgba(255, 44, 31, 0.95);
+    color: #fff;
+}
+
+.auth-error {
+    color: #e50914;
+    text-align: center;
+    margin-top: 14px;
+    min-height: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Profile Button Styles */
+.profile-button {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.profile-button:hover {
+    background: #fff;
+    color: #111;
+}

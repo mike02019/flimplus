@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Film+ Profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="profile.css">
+    <link rel="icon" href="img/pic2.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">
+            <img src="img/pic2.jpg" alt="Film+" style="width: 50px;height: 40px; border-radius: 7px 9px;">
+        </a>
+        <div class="bx bx-menu" id="menu-icon"></div>
+        <ul class="navbar">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#movies">Movies</a></li>
+            <li><a href="index.html#coming">Coming</a></li>
+            <li><a href="index.html#newsletter">NewsLetter</a></li>
+        </ul>
+        <div class="auth-container">
+            <div class="notifications-badge" id="notificationsBadge" style="display: none;">
+                <span class="badge-count">0</span>
+            </div>
+            <a href="login.html" class="btn" id="authButton" style="height: 40px; display: flex; align-items: center; gap: 8px;">
+                <span id="authButtonText">Register</span>
+            </a>
+            <div class="profile-pic-wrapper">
+                <div id="profileInitialsHeader" class="profile-initials" style="display: none;">U</div>
+                <img id="profilePicHeader" src="img/pic2.jpg" alt="" style="width: 28px; height: 28px; border-radius: 50%; display: none;">
+                <div class="status-indicator" id="onlineStatus"></div>
+            </div>
+            <div id="userDropdown" class="auth-dropdown">
+                <div class="dropdown-header">
+                    <div class="user-info">
+                        <img id="dropdownProfilePic" src="img/pic2.jpg" alt="" style="width: 40px; height: 40px; border-radius: 50%;">
+                        <div class="user-details">
+                            <span id="dropdownUsername">Username</span>
+                            <small id="userEmail">user@example.com</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="dropdown-divider"></div>
+                <a href="profile.html" class="dropdown-item"><i class='bx bxs-user'></i> Profile</a>
+                <a href="profile.html#history" class="dropdown-item">
+                    <i class='bx bx-history'></i> Watch History
+                    <span class="item-badge" id="watchCount">0</span>
+                </a>
+                <a href="profile.html#favorites" class="dropdown-item">
+                    <i class='bx bx-heart'></i> My List
+                    <span class="item-badge" id="favoritesCount">0</span>
+                </a>
+                <a href="profile.html#settings" class="dropdown-item"><i class='bx bx-cog'></i> Settings</a>
+                <div class="dropdown-divider"></div>
+                <button id="logoutBtn" class="dropdown-item logout-btn"><i class='bx bx-log-out'></i> Log Out</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="profile-main">
+        <div class="profile-container">
+            <!-- Sidebar -->
+            <aside class="profile-sidebar">
+                <div class="profile-header">
+                    <div class="profile-pic-container">
+                        <img src="img/default-profile.jpg" alt="Profile Picture" class="profile-pic" id="profilePic">
+                        <button class="change-pic-btn" id="changePicBtn">
+                            <i class='bx bx-camera'></i>
+                        </button>
+                    </div>
+                    <h2 id="profileName">User Name</h2>
+                    <p id="profileEmail">user@email.com</p>
+                </div>
+
+                <nav class="profile-nav">
+                    <a href="#account" class="nav-item active">
+                        <i class='bx bx-user'></i>
+                        <span>Account</span>
+                    </a>
+                    <a href="#watch-history" class="nav-item">
+                        <i class='bx bx-history'></i>
+                        <span>Watch History</span>
+                    </a>
+                    <a href="#favorites" class="nav-item">
+                        <i class='bx bx-heart'></i>
+                        <span>Favorites</span>
+                    </a>
+                    <a href="#subscription" class="nav-item">
+                        <i class='bx bx-crown'></i>
+                        <span>Subscription</span>
+                    </a>
+                    <a href="#settings" class="nav-item">
+                        <i class='bx bx-cog'></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="profile-content">
+                <!-- Account Section -->
+                <section id="account" class="content-section active">
+                    <h2>Account Information</h2>
+                    <form id="accountForm" class="settings-form">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">New Password (leave blank to keep current)</label>
+                            <input type="password" id="password" name="password">
+                        </div>
+                        <button type="submit" class="save-btn">Save Changes</button>
+                    </form>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class='bx bx-movie'></i>
+                            <h3 id="moviesWatched">0</h3>
+                            <p>Movies Watched</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class='bx bx-time'></i>
+                            <h3 id="totalHours">0</h3>
+                            <p>Hours Watched</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class='bx bx-calendar'></i>
+                            <h3 id="watchParties">0</h3>
+                            <p>Watch Parties</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Watch History Section -->
+                <section id="watch-history" class="content-section">
+                    <h2>Watch History</h2>
+                    <div class="history-grid" id="watchHistory">
+                        <!-- Watch history will be populated by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Favorites Section -->
+                <section id="favorites" class="content-section">
+                    <h2>Your Favorites</h2>
+                    <div class="favorites-grid" id="favoritesList">
+                        <!-- Favorites will be populated by JavaScript -->
+                    </div>
+                </section>
+                 <a href="#" class="btn" id="logoutButton">Log Out</a>
+
+                <!-- Subscription Section -->
+                <section id="subscription" class="content-section">
+                    <h2>Subscription</h2>
+                    <div class="subscription-info">
+                        <div class="current-plan">
+                            <h3>Current Plan</h3>
+                            <p id="currentPlanName">Free</p>
+                            <p id="planExpiry">No active subscription</p>
+                        </div>
+                    </div>
+
+                    <div class="plans-grid">
+                        <div class="plan-card" data-plan="basic">
+                            <h3>Basic</h3>
+                            <div class="plan-price">$9.99<span>/month</span></div>
+                            <ul class="plan-features">
+                                <li>HD Streaming</li>
+                                <li>Watch on 2 devices</li>
+                                <li>No ads</li>
+                            </ul>
+                            <button class="plan-cta">Choose Basic</button>
+                        </div>
+
+                        <div class="plan-card premium" data-plan="premium">
+                            <div class="plan-badge">Most Popular</div>
+                            <h3>Premium</h3>
+                            <div class="plan-price">$14.99<span>/month</span></div>
+                            <ul class="plan-features">
+                                <li>4K Ultra HD</li>
+                                <li>Watch on 4 devices</li>
+                                <li>No ads</li>
+                                <li>Download for offline</li>
+                            </ul>
+                            <button class="plan-cta">Choose Premium</button>
+                        </div>
+
+                        <div class="plan-card" data-plan="family">
+                            <h3>Family</h3>
+                            <div class="plan-price">$19.99<span>/month</span></div>
+                            <ul class="plan-features">
+                                <li>4K Ultra HD</li>
+                                <li>Watch on 6 devices</li>
+                                <li>No ads</li>
+                                <li>Download for offline</li>
+                                <li>Separate profiles</li>
+                            </ul>
+                            <button class="plan-cta">Choose Family</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="content-section">
+                    <h2>Settings</h2>
+                    <form id="settingsForm" class="settings-form">
+                        <div class="form-group">
+                            <label>Autoplay Next Episode</label>
+                            <label class="switch">
+                                <input type="checkbox" id="autoplay">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email Notifications</label>
+                            <label class="switch">
+                                <input type="checkbox" id="notifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quality">Default Video Quality</label>
+                            <select id="quality">
+                                <option value="auto">Auto</option>
+                                <option value="720p">720p</option>
+                                <option value="1080p">1080p</option>
+                                <option value="4k">4K</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="save-btn">Save Settings</button>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Payment Details</h2>
+            <form id="paymentForm" class="payment-form">
+                <div class="form-group">
+                    <label for="cardName">Cardholder Name</label>
+                    <input type="text" id="cardName" required>
+                </div>
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" required>
+                </div>
+                <div class="card-details">
+                    <div class="form-group">
+                        <label for="expiry">Expiry Date</label>
+                        <input type="text" id="expiry" placeholder="MM/YY" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cvv">CVV</label>
+                        <input type="text" id="cvv" placeholder="123" required>
+                    </div>
+                </div>
+                <button type="submit" class="payment-btn">Complete Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="profile.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

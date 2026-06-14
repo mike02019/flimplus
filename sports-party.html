@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Film+ Sports | Watch Party</title>
+    <link rel="icon" href="img/pic2.jpg" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #ff2c1f;
+            --red-dark: #c7190e;
+            --red-glow: rgba(255,44,31,0.3);
+            --gold: #f5c842;
+            --green: #00e676;
+            --dark: #080808;
+            --surface: #111;
+            --border: rgba(255,255,255,0.08);
+            --text-muted: rgba(255,255,255,0.45);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html, body { height:100%; overflow:hidden; font-family:'Poppins',sans-serif; background:var(--dark); color:#fff; }
+
+        body::before {
+            content:'';
+            position:fixed; inset:0; pointer-events:none; z-index:0;
+            background:
+                radial-gradient(ellipse 80% 40% at 50% 0%, rgba(255,44,31,0.07) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 30% at 0% 100%, rgba(255,44,31,0.04) 0%, transparent 70%);
+        }
+
+        /* HEADER */
+        .wp-header {
+            position:relative; z-index:100;
+            display:flex; align-items:center; gap:14px;
+            padding:0 20px; height:60px;
+            background:rgba(8,8,8,0.97);
+            border-bottom:1px solid var(--border);
+            backdrop-filter:blur(12px);
+            flex-shrink:0;
+        }
+        .wp-header__logo {
+            display:flex; align-items:center; gap:10px;
+            text-decoration:none; color:#fff; font-weight:700; font-size:1rem;
+        }
+        .wp-header__logo img { width:32px; height:26px; border-radius:5px; }
+        .wp-logo-plus { color:var(--red); }
+
+        .wp-live-badge {
+            display:flex; align-items:center; gap:6px;
+            background:rgba(255,44,31,0.12); border:1px solid rgba(255,44,31,0.35);
+            padding:4px 12px; border-radius:20px; font-size:0.72rem; font-weight:700;
+            letter-spacing:1px; white-space:nowrap;
+        }
+        .wp-live-dot {
+            width:7px; height:7px; border-radius:50%; background:var(--red);
+            animation:blink 1s infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.1} }
+
+        .wp-viewer-badge {
+            display:flex; align-items:center; gap:6px;
+            background:rgba(255,255,255,0.05); padding:4px 12px; border-radius:20px;
+            font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.7);
+            white-space:nowrap;
+        }
+        .wp-viewer-badge i { color:var(--red); }
+
+        .wp-header__actions { margin-left:auto; display:flex; align-items:center; gap:8px; }
+        .party-link-input {
+            background:rgba(255,255,255,0.05); border:1px solid var(--border);
+            color:rgba(255,255,255,0.6); padding:6px 10px; border-radius:6px;
+            font-size:0.72rem; width:150px; outline:none; font-family:inherit;
+        }
+        .wp-btn {
+            display:flex; align-items:center; gap:5px;
+            padding:6px 13px; border-radius:6px; border:none; cursor:pointer;
+            font-size:0.78rem; font-weight:600; font-family:inherit; transition:0.2s;
+            text-decoration:none; white-space:nowrap;
+        }
+        .wp-btn--copy { background:rgba(255,255,255,0.08); color:#fff; }
+        .wp-btn--copy:hover { background:rgba(255,255,255,0.14); }
+        .wp-btn--leave { background:rgba(255,44,31,0.12); color:var(--red); border:1px solid rgba(255,44,31,0.3); }
+        .wp-btn--leave:hover { background:var(--red); color:#fff; }
+
+        /* STAGE */
+        .wp-stage {
+            position:relative; z-index:1;
+            display:flex;
+            height: calc(100vh - 60px);
+            overflow:hidden;
+        }
+
+        /* VIDEO COLUMN */
+        .wp-video-col {
+            flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden;
+        }
+
+        .match-title-bar {
+            padding:12px 20px;
+            background:linear-gradient(135deg, rgba(255,44,31,0.08) 0%, transparent 60%);
+            border-bottom:1px solid var(--border);
+            display:flex; align-items:center; gap:12px; flex-shrink:0;
+        }
+        .match-title-bar h1 {
+            font-family:'Bebas Neue', sans-serif;
+            font-size:1.5rem; letter-spacing:1px; color:#fff; line-height:1;
+        }
+        .role-badge {
+            padding:3px 11px; border-radius:20px;
+            font-size:0.68rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+        }
+        .role-badge.is-host { background:var(--red); color:#fff; }
+        .role-badge.is-guest { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); }
+
+        /* PLAYER */
+        .wp-player-wrap {
+            flex:1; position:relative; background:#000; overflow:hidden;
+        }
+        .wp-player-wrap iframe {
+            position:absolute; inset:0; width:100%; height:100%; border:none;
+        }
+        .stream-placeholder {
+            position:absolute; inset:0; display:flex; flex-direction:column;
+            align-items:center; justify-content:center; gap:14px;
+            background:radial-gradient(ellipse at center, #1a1a1a 0%, #080808 100%);
+        }
+        .stream-placeholder i { font-size:3.5rem; color:rgba(255,255,255,0.12); }
+        .stream-placeholder p { color:rgba(255,255,255,0.3); font-size:0.85rem; text-align:center; padding:0 20px; }
+        .stream-placeholder .spinner {
+            width:36px; height:36px; border:3px solid rgba(255,44,31,0.2);
+            border-top-color:var(--red); border-radius:50%;
+            animation:spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* REACTIONS BAR */
+        .reactions-bar {
+            display:flex; align-items:center; gap:7px; overflow-x:auto;
+            padding:10px 20px; background:var(--surface); border-top:1px solid var(--border);
+            scrollbar-width:none; flex-shrink:0;
+        }
+        .reactions-bar::-webkit-scrollbar { display:none; }
+        .reaction-label { font-size:0.72rem; color:var(--text-muted); white-space:nowrap; margin-right:4px; }
+        .reaction-btn {
+            display:flex; flex-direction:column; align-items:center; gap:1px;
+            background:rgba(255,255,255,0.04); border:1px solid var(--border);
+            padding:5px 10px; border-radius:9px; cursor:pointer;
+            font-family:inherit; font-size:1.1rem; transition:0.15s; flex-shrink:0;
+        }
+        .reaction-btn .r-label { font-size:0.58rem; color:var(--text-muted); }
+        .reaction-btn .r-count { font-size:0.62rem; color:var(--text-muted); }
+        .reaction-btn:hover { background:rgba(255,255,255,0.09); transform:scale(1.12); }
+        .reaction-btn:active { transform:scale(0.95); }
+
+        /* CHAT COLUMN */
+        .wp-chat-col {
+            width:310px; flex-shrink:0; display:flex; flex-direction:column;
+            border-left:1px solid var(--border); background:var(--surface);
+        }
+        .chat-header {
+            padding:13px 16px; border-bottom:1px solid var(--border);
+            display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+        }
+        .chat-header-left { display:flex; align-items:center; gap:8px; }
+        .chat-header-left i { color:var(--red); }
+        .chat-header h3 { font-size:0.88rem; font-weight:600; }
+        .chat-online { font-size:0.7rem; color:var(--green); background:rgba(0,230,118,0.1); padding:2px 8px; border-radius:20px; }
+
+        .chat-messages {
+            flex:1; overflow-y:auto; padding:12px;
+            scroll-behavior:smooth; display:flex; flex-direction:column; gap:9px;
+        }
+        .chat-messages::-webkit-scrollbar { width:3px; }
+        .chat-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+
+        .wp-chat-empty {
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            height:100%; gap:10px; color:var(--text-muted); text-align:center;
+        }
+        .wp-chat-empty i { font-size:2.2rem; color:rgba(255,44,31,0.25); }
+        .wp-chat-empty p { font-size:0.82rem; line-height:1.5; }
+
+        .msg-system {
+            text-align:center; font-size:0.73rem; color:var(--text-muted);
+            padding:3px 12px; background:rgba(255,255,255,0.03); border-radius:20px;
+            align-self:center;
+        }
+        .msg-bubble { display:flex; flex-direction:column; gap:3px; max-width:86%; }
+        .msg-bubble.self { align-self:flex-end; align-items:flex-end; }
+        .msg-bubble.other { align-self:flex-start; }
+        .msg-author { font-size:0.67rem; font-weight:700; color:var(--red); }
+        .msg-bubble.self .msg-author { color:var(--gold); }
+        .msg-text {
+            padding:7px 11px; border-radius:11px; font-size:0.83rem; line-height:1.4; word-break:break-word;
+        }
+        .msg-bubble.self .msg-text {
+            background:rgba(255,44,31,0.18); border:1px solid rgba(255,44,31,0.28); border-bottom-right-radius:3px;
+        }
+        .msg-bubble.other .msg-text {
+            background:rgba(255,255,255,0.06); border:1px solid var(--border); border-bottom-left-radius:3px;
+        }
+
+        /* Chat input */
+        .chat-input-wrap { padding:11px; border-top:1px solid var(--border); flex-shrink:0; }
+        .chat-form { display:flex; gap:7px; align-items:center; }
+        .chat-input {
+            flex:1; background:rgba(255,255,255,0.06); border:1px solid var(--border);
+            color:#fff; padding:8px 12px; border-radius:7px; font-family:inherit;
+            font-size:0.83rem; outline:none; transition:0.2s;
+        }
+        .chat-input::placeholder { color:var(--text-muted); }
+        .chat-input:focus { border-color:rgba(255,44,31,0.4); background:rgba(255,44,31,0.05); }
+        .send-btn {
+            width:36px; height:36px; border-radius:7px; background:var(--red); border:none;
+            color:#fff; display:flex; align-items:center; justify-content:center;
+            cursor:pointer; transition:0.2s; flex-shrink:0; font-size:1rem;
+        }
+        .send-btn:hover { background:var(--red-dark); transform:scale(1.05); }
+        .send-btn:active { transform:scale(0.95); }
+
+        /* Flying emoji */
+        .flying-emoji {
+            position:fixed; pointer-events:none; z-index:9999;
+            font-size:2rem; animation:flyUp 1.8s ease-out forwards;
+        }
+        @keyframes flyUp {
+            0%   { opacity:1; transform:translateY(0) scale(1); }
+            100% { opacity:0; transform:translateY(-180px) scale(0.4); }
+        }
+
+        /* Goal flash */
+        .goal-flash {
+            position:fixed; inset:0; z-index:8888; pointer-events:none; border-radius:0;
+            border:4px solid var(--red);
+            box-shadow:inset 0 0 80px rgba(255,44,31,0.25);
+            animation:goalFlash 0.9s ease-out forwards;
+        }
+        @keyframes goalFlash { 0%{opacity:1} 100%{opacity:0} }
+
+        /* Connection status */
+        .conn-status {
+            position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+            background:#111; border:1px solid var(--border); color:rgba(255,255,255,0.55);
+            padding:6px 16px; border-radius:20px; font-size:0.72rem; z-index:500;
+            transition:opacity 0.3s; pointer-events:none;
+        }
+        .conn-status.good  { border-color:rgba(0,230,118,0.4); color:var(--green); }
+        .conn-status.warn  { border-color:rgba(255,44,31,0.4); color:#ff8a80; }
+        .conn-status.hide  { opacity:0; }
+
+        /* Responsive */
+        @media (max-width:768px) {
+            .wp-stage { flex-direction:column; }
+            .wp-chat-col { width:100%; border-left:none; border-top:1px solid var(--border); height:280px; flex-shrink:0; }
+            .party-link-input { display:none; }
+            .match-title-bar h1 { font-size:1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="wp-header">
+    <a href="sports.html" class="wp-header__logo">
+        <img src="img/pic2.jpg" alt="Film+">
+        <span>Film<span class="wp-logo-plus">+</span> Sports</span>
+    </a>
+    <div class="wp-live-badge"><span class="wp-live-dot"></span> LIVE PARTY</div>
+    <div class="wp-viewer-badge"><i class='bx bxs-group'></i><span id="wpViewerCount">1</span></div>
+    <div class="wp-header__actions">
+        <input type="text" id="partyLink" class="party-link-input" readonly>
+        <button class="wp-btn wp-btn--copy" id="copyBtn" onclick="copyLink()"><i class='bx bx-copy'></i> Copy Link</button>
+        <a href="sports.html" class="wp-btn wp-btn--leave"><i class='bx bx-log-out'></i> Leave</a>
+    </div>
+</header>
+
+<!-- STAGE -->
+<main class="wp-stage">
+
+    <!-- VIDEO SIDE -->
+    <section class="wp-video-col">
+        <div class="match-title-bar">
+            <h1 id="wpMovieTitle">Loading Match…</h1>
+            <span class="role-badge" id="wpRoleBadge">Guest</span>
+        </div>
+
+        <div class="wp-player-wrap" id="iframeContainer">
+            <div class="stream-placeholder">
+                <div class="spinner"></div>
+                <p>Connecting to stream…</p>
+            </div>
+        </div>
+
+        <!-- REACTIONS BAR -->
+        <div class="reactions-bar" id="reactionsBar">
+            <span class="reaction-label">React:</span>
+        </div>
+    </section>
+
+    <!-- CHAT SIDE -->
+    <aside class="wp-chat-col">
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <i class='bx bx-chat'></i>
+                <h3>Fan Chat</h3>
+            </div>
+            <span class="chat-online" id="chatOnline">● 1 online</span>
+        </div>
+
+        <div class="chat-messages" id="partyChatMessages">
+            <div class="wp-chat-empty">
+                <i class='bx bx-football'></i>
+                <p>The stadium is quiet…<br>Be the first to cheer!</p>
+            </div>
+        </div>
+
+        <div class="chat-input-wrap">
+            <form class="chat-form" id="partyChatForm">
+                <input type="text" id="partyChatInput" class="chat-input"
+                    placeholder="Cheer for your team…" autocomplete="off" maxlength="200">
+                <button type="submit" class="send-btn"><i class='bx bx-send'></i></button>
+            </form>
+        </div>
+    </aside>
+</main>
+
+<!-- Connection status badge -->
+<div class="conn-status hide" id="connStatus">Connecting…</div>
+
+<script>
+/* ================================================================
+   SPORTS WATCH PARTY — self-contained Firebase integration
+   Works with watchparty.js for chat/presence sync.
+   Embed HTML is stored in Firebase by the host so guests can load
+   the same stream without needing sessionStorage.
+================================================================ */
+
+// ── FIREBASE CONFIG (mirrors watchparty.js) ──────────────────────
+const FIREBASE_CONFIG = {
+    apiKey: 'AIzaSyAtLmMjP9erQryr9-KtSl4MGoDMefjwlXk',
+    authDomain: 'filmpluspro-fd8dd.firebaseapp.com',
+    databaseURL: 'https://filmpluspro-fd8dd-default-rtdb.firebaseio.com',
+    projectId: 'filmpluspro-fd8dd',
+    storageBucket: 'filmpluspro-fd8dd.firebasestorage.app',
+    messagingSenderId: '533291220327',
+    appId: '1:533291220327:web:d78546974a26ca945203c2',
+};
+
+// ── URL PARAMS ───────────────────────────────────────────────────
+const params     = new URLSearchParams(window.location.search);
+const partyId    = params.get('party') || 'sport-unknown';
+const matchTitle = params.get('title') || 'Live Sports';
+const isHost     = params.get('host') === '1';
+
+// ── UI INIT ──────────────────────────────────────────────────────
+document.getElementById('wpMovieTitle').textContent = matchTitle;
+const roleBadge = document.getElementById('wpRoleBadge');
+roleBadge.textContent = isHost ? '⭐ Host' : 'Guest';
+roleBadge.className   = 'role-badge ' + (isHost ? 'is-host' : 'is-guest');
+document.title = matchTitle + ' | Film+ Sports Party';
+
+// Share link (guests join WITHOUT host=1)
+const shareLink = `${location.origin}${location.pathname}?party=${encodeURIComponent(partyId)}&title=${encodeURIComponent(matchTitle)}`;
+document.getElementById('partyLink').value = shareLink;
+
+function copyLink() {
+    navigator.clipboard?.writeText(shareLink).catch(() => {
+        // fallback
+        const el = document.getElementById('partyLink');
+        el.select(); document.execCommand('copy');
+    });
+    const btn = document.getElementById('copyBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="bx bx-check"></i> Copied!';
+    btn.style.color = '#00e676';
+    setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 2200);
+}
+
+// ── STATUS BADGE ─────────────────────────────────────────────────
+function setStatus(msg, type) {
+    const el = document.getElementById('connStatus');
+    el.textContent = msg;
+    el.className = 'conn-status ' + (type || '');
+    clearTimeout(el._hideTimer);
+    if (type === 'good') {
+        el._hideTimer = setTimeout(() => el.classList.add('hide'), 3000);
+    }
+}
+
+// ── LOAD EMBED ───────────────────────────────────────────────────
+function loadEmbed(encodedHtml) {
+    const html = decodeURIComponent(encodedHtml);
+    document.getElementById('iframeContainer').innerHTML = html;
+}
+
+function showStreamPlaceholder(msg) {
+    document.getElementById('iframeContainer').innerHTML = `
+        <div class="stream-placeholder">
+            <i class='bx bx-satellite'></i>
+            <p>${msg}</p>
+        </div>`;
+}
+
+// ── FIREBASE INIT ────────────────────────────────────────────────
+let db = null;
+let partyRef = null;
+let _clientId = 'c-' + Math.random().toString(36).slice(2, 10);
+let _joinTimestamp = Date.now();
+let _listeners = [];
+
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+        const s = document.createElement('script');
+        s.src = src; s.onload = resolve; s.onerror = reject;
+        document.head.appendChild(s);
+    });
+}
+
+function getDisplayName() {
+    try {
+        const ud = JSON.parse(localStorage.getItem('userData'));
+        if (ud && ud.name) return ud.name;
+    } catch (_) {}
+    return 'Fan';
+}
+
+async function initParty() {
+    setStatus('Connecting to party…', 'neutral');
+
+    try {
+        await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+        await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js');
+    } catch (e) {
+        setStatus('Network error — chat offline', 'warn');
+        // Still load embed from sessionStorage if available
+        const se = sessionStorage.getItem('currentSportsEmbed');
+        if (se) loadEmbed(se);
+        else showStreamPlaceholder('Stream unavailable offline.');
+        return;
+    }
+
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    partyRef = db.ref('parties/' + partyId);
+
+    // ── HOST: write embed URL + presence ─────────────────────────
+    if (isHost) {
+        const embedHtml = sessionStorage.getItem('currentSportsEmbed');
+        if (embedHtml) {
+            loadEmbed(embedHtml);
+            // Save embed to Firebase so guests can load it
+            partyRef.child('sportsMeta').set({
+                embedHtml: embedHtml,         // already encoded
+                title: matchTitle,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+            });
+        } else {
+            showStreamPlaceholder('No stream data found.<br>Please go back and click "Host Watch Party" again.');
+        }
+
+        // Clear stale ended flag
+        partyRef.child('ended').remove();
+
+        // Listen for guests joining and post welcome message
+        const joinRef = partyRef.child('joinRequests');
+        const joinCb = joinRef.on('child_added', snap => {
+            const data = snap.val();
+            if (!data) return;
+            addChatMessage('System', `🎉 ${data.user || 'A fan'} joined the party!`, 0, false, true);
+            snap.ref.remove();
+        });
+        _listeners.push(() => joinRef.off('child_added', joinCb));
+
+        setStatus('Party live — share your link!', 'good');
+
+    } else {
+        // ── GUEST: read embed from Firebase ──────────────────────
+        setStatus('Loading stream…', 'neutral');
+        partyRef.child('sportsMeta').once('value', snap => {
+            const meta = snap.val();
+            if (meta && meta.embedHtml) {
+                loadEmbed(meta.embedHtml);
+                setStatus('Stream loaded ✓', 'good');
+            } else {
+                showStreamPlaceholder('Waiting for the host to start the stream…');
+                // Keep watching in case host joins after
+                partyRef.child('sportsMeta').on('value', snap2 => {
+                    const m = snap2.val();
+                    if (m && m.embedHtml) {
+                        loadEmbed(m.embedHtml);
+                        setStatus('Stream connected ✓', 'good');
+                    }
+                });
+            }
+        });
+
+        // Register join request so host sees us arrive
+        partyRef.child('joinRequests/' + _clientId).set({
+            clientId: _clientId,
+            user: getDisplayName(),
+            requestedAt: firebase.database.ServerValue.TIMESTAMP,
+        });
+
+        // Listen for party ended
+        const endedRef = partyRef.child('ended');
+        const endedCb = endedRef.on('value', snap => {
+            if (!snap.val()) return;
+            addChatMessage('System', '🛑 The host has ended the watch party.', 0, false, true);
+            setStatus('Party ended', 'warn');
+            setTimeout(() => { window.location.href = 'sports.html'; }, 2500);
+        });
+        _listeners.push(() => endedRef.off('value', endedCb));
+
+        setStatus('Joined party ✓', 'good');
+    }
+
+    // ── MEMBER PRESENCE ───────────────────────────────────────────
+    const memberRef = partyRef.child('members/' + _clientId);
+    memberRef.set({
+        username: getDisplayName(),
+        role: isHost ? 'host' : 'guest',
+        joinedAt: firebase.database.ServerValue.TIMESTAMP,
+    });
+    memberRef.onDisconnect().remove();
+
+    const membersRef = partyRef.child('members');
+    const membersCb = membersRef.on('value', snap => {
+        const members = [];
+        snap.forEach(child => members.push(child.val()));
+        const n = members.length;
+        document.getElementById('wpViewerCount').textContent = n;
+        document.getElementById('chatOnline').textContent = `● ${n} online`;
+    });
+    _listeners.push(() => membersRef.off('value', membersCb));
+
+    // ── CHAT LISTENER (incoming from others) ──────────────────────
+    const chatRef = partyRef.child('chat').orderByChild('sentAt').startAt(_joinTimestamp);
+    const chatCb = chatRef.on('child_added', snap => {
+        const d = snap.val();
+        if (!d || d.senderId === _clientId) return;
+        addChatMessage(d.user || 'Fan', d.message || '', 0, false, d.isSystem || false);
+    });
+    _listeners.push(() => chatRef.off('child_added', chatCb));
+
+    // ── REACTION LISTENER (from others) ──────────────────────────
+    const reactRef = partyRef.child('sportsReactions').orderByChild('sentAt').startAt(_joinTimestamp);
+    const reactCb = reactRef.on('child_added', snap => {
+        const d = snap.val();
+        if (!d || d.senderId === _clientId) return;
+        spawnFlyingEmoji(d.emoji);
+        bumpReactionCount(d.emoji);
+    });
+    _listeners.push(() => reactRef.off('child_added', reactCb));
+
+    // Welcome message
+    setTimeout(() => {
+        addChatMessage('Film+ Sports', `🎙️ Welcome to the ${matchTitle} watch party! Enjoy the match!`, 0, false, true);
+    }, 700);
+}
+
+// ── CHAT FUNCTIONS ───────────────────────────────────────────────
+function addChatMessage(user, message, timestamp, shouldBroadcast, isSystem) {
+    const msgs = document.getElementById('partyChatMessages');
+    const empty = msgs.querySelector('.wp-chat-empty');
+    if (empty) empty.remove();
+
+    const el = document.createElement('div');
+
+    if (isSystem) {
+        el.className = 'msg-system';
+        el.textContent = message;
+    } else {
+        const isSelf = user === 'You';
+        el.className = 'msg-bubble ' + (isSelf ? 'self' : 'other');
+        el.innerHTML = `
+            <span class="msg-author">${escHtml(user)}</span>
+            <div class="msg-text">${escHtml(message)}</div>`;
+    }
+
+    msgs.appendChild(el);
+    msgs.scrollTop = msgs.scrollHeight;
+}
+
+function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function sendChatToFirebase(message) {
+    if (!partyRef) return;
+    partyRef.child('chat').push({
+        user: getDisplayName(),
+        message,
+        timestamp: 0,
+        sentAt: firebase.database.ServerValue.TIMESTAMP,
+        senderId: _clientId,
+        isSystem: false,
+    });
+}
+
+document.getElementById('partyChatForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const input = document.getElementById('partyChatInput');
+    const msg   = input.value.trim();
+    if (!msg) return;
+    addChatMessage('You', msg, 0, false, false);
+    sendChatToFirebase(msg);
+    input.value = '';
+});
+
+// ── REACTIONS ────────────────────────────────────────────────────
+const REACTIONS = [
+    { emoji:'⚽', label:'Goal!'},
+    { emoji:'🔥', label:'Fire' },
+    { emoji:'😱', label:'OMG'  },
+    { emoji:'👏', label:'Clap' },
+    { emoji:'😭', label:'Nooo' },
+    { emoji:'🎯', label:'Shot' },
+    { emoji:'🟥', label:'Red!' },
+    { emoji:'😴', label:'Zzz'  },
+];
+
+const reactionCounts = {};
+const bar = document.getElementById('reactionsBar');
+
+REACTIONS.forEach(r => {
+    reactionCounts[r.emoji] = 0;
+    const btn = document.createElement('button');
+    btn.className = 'reaction-btn';
+    btn.type = 'button';
+    btn.dataset.emoji = r.emoji;
+    btn.innerHTML = `<span>${r.emoji}</span><span class="r-label">${r.label}</span><span class="r-count" id="rc-${r.emoji.codePointAt(0)}">0</span>`;
+    btn.addEventListener('click', () => fireReaction(r.emoji));
+    bar.appendChild(btn);
+});
+
+function bumpReactionCount(emoji) {
+    reactionCounts[emoji] = (reactionCounts[emoji] || 0) + 1;
+    const el = document.getElementById('rc-' + emoji.codePointAt(0));
+    if (el) el.textContent = reactionCounts[emoji];
+}
+
+function spawnFlyingEmoji(emoji) {
+    const el = document.createElement('div');
+    el.className = 'flying-emoji';
+    el.textContent = emoji;
+    el.style.left = (15 + Math.random() * 60) + 'vw';
+    el.style.bottom = '120px';
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+}
+
+function fireReaction(emoji) {
+    bumpReactionCount(emoji);
+    spawnFlyingEmoji(emoji);
+
+    if (emoji === '⚽') {
+        const flash = document.createElement('div');
+        flash.className = 'goal-flash';
+        document.body.appendChild(flash);
+        flash.addEventListener('animationend', () => flash.remove());
+        addChatMessage('Stadium', '⚽ GOAAAAL! The crowd erupts!', 0, false, true);
+    }
+
+    // Broadcast reaction to others
+    if (partyRef) {
+        partyRef.child('sportsReactions').push({
+            emoji,
+            senderId: _clientId,
+            user: getDisplayName(),
+            sentAt: firebase.database.ServerValue.TIMESTAMP,
+        });
+    }
+}
+
+// ── WATCHPARTY.JS COMPATIBILITY SHIMS ───────────────────────────
+// watchparty.js looks for these globals; we provide no-ops since
+// there is no <video> element in a sports iframe party.
+window.currentPartyId      = partyId;
+window.isHost              = isHost;
+window.getPlayer           = () => null;
+window.broadcastVideoSync  = () => {};
+window.updateMemberCount   = (members) => {
+    const n = Array.isArray(members) ? members.length : 1;
+    document.getElementById('wpViewerCount').textContent = n;
+    document.getElementById('chatOnline').textContent = `● ${n} online`;
+};
+// Override addChatMessage so watchparty.js chat events also render
+window.addChatMessage = addChatMessage;
+// sendPartyEvent is used by watchparty.js — wrap to our Firebase
+window.sendPartyEvent = function(type, payload) {
+    if (!partyRef) return;
+    if (type === 'chat-message') {
+        partyRef.child('chat').push({
+            user: payload.user || getDisplayName(),
+            message: payload.message || '',
+            timestamp: payload.timestamp || 0,
+            sentAt: firebase.database.ServerValue.TIMESTAMP,
+            senderId: _clientId,
+        });
+    }
+};
+
+// ── CLEANUP on page leave ────────────────────────────────────────
+window.addEventListener('beforeunload', () => {
+    _listeners.forEach(fn => { try { fn(); } catch(_) {} });
+    if (partyRef && _clientId) {
+        partyRef.child('members/' + _clientId).remove();
+    }
+});
+
+// ── KICK OFF ─────────────────────────────────────────────────────
+initParty().catch(err => {
+    console.error('[SportsParty] Init error:', err);
+    setStatus('Connection error — check console', 'warn');
+    const se = sessionStorage.getItem('currentSportsEmbed');
+    if (se) loadEmbed(se);
+    else showStreamPlaceholder('Could not connect. Try refreshing.');
+});
+</script>
+
+<!-- watchparty.js handles additional presence/chat features (it won't crash — getPlayer returns null) -->
+<script src="watchparty.js"></script>
+</body>
+</html>

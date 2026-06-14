@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Film+ Sports | Live Matches</title>
+    <link rel="icon" href="img/pic2.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --red: #ff2c1f;
+            --red-glow: rgba(255, 44, 31, 0.35);
+            --gold: #f5c842;
+            --green: #00e676;
+            --dark: #0a0a0a;
+            --card-bg: #111;
+            --border: rgba(255, 255, 255, 0.07);
+        }
+
+        body {
+            background: var(--dark);
+        }
+
+        /* ── HERO ── */
+        .sports-hero {
+            margin-top: 80px;
+            position: relative;
+            min-height: 340px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            text-align: center;
+            padding: 3rem 1rem 2.5rem;
+        }
+
+        .sports-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=2070') center/cover no-repeat;
+            filter: brightness(0.18) saturate(1.4);
+            z-index: 0;
+        }
+
+        /* animated scanline */
+        .sports-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255, 44, 31, 0.03) 3px, rgba(255, 44, 31, 0.03) 4px);
+            pointer-events: none;
+            z-index: 1;
+            animation: scanDrift 8s linear infinite;
+        }
+
+        @keyframes scanDrift {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 0 100%;
+            }
+        }
+
+        .sports-hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-eyebrow {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 6px;
+            font-size: 0.85rem;
+            color: var(--red);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .hero-eyebrow::before,
+        .hero-eyebrow::after {
+            content: '';
+            flex: 1;
+            max-width: 60px;
+            height: 1px;
+            background: var(--red);
+        }
+
+        .sports-hero h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3.5rem, 10vw, 7rem);
+            color: #fff;
+            line-height: 1;
+            letter-spacing: 2px;
+            text-shadow: 0 0 40px var(--red-glow);
+        }
+
+        .sports-hero h1 span {
+            color: var(--red);
+        }
+
+        .hero-sub {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.55);
+            margin-top: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        /* refresh bar */
+        .refresh-bar {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .refresh-bar .countdown {
+            background: rgba(255, 44, 31, 0.12);
+            border: 1px solid rgba(255, 44, 31, 0.3);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: var(--red);
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 4px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .refresh-btn:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        /* ── LEAGUE FILTER TABS ── */
+        .league-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 1.5rem 5% 0.5rem;
+            scrollbar-width: none;
+            position: sticky;
+            top: 72px;
+            z-index: 100;
+            background: linear-gradient(var(--dark), transparent);
+        }
+
+        .league-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            white-space: nowrap;
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--red);
+            color: #fff;
+        }
+
+        .tab-btn.active {
+            background: var(--red);
+            border-color: var(--red);
+            color: #fff;
+        }
+
+        /* ── GRID ── */
+        .sports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 22px;
+            padding: 2rem 5%;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* ── MATCH CARD ── */
+        .match-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .match-card[data-league] {
+            display: block;
+        }
+
+        .match-card.hidden {
+            display: none !important;
+        }
+
+        .match-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 44, 31, 0.5);
+            box-shadow: 0 16px 40px rgba(255, 44, 31, 0.12);
+        }
+
+        .match-card.is-live {
+            border-color: rgba(255, 44, 31, 0.4);
+        }
+
+        .match-card.is-live::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            box-shadow: inset 0 0 0 1px var(--red);
+            pointer-events: none;
+            z-index: 2;
+            animation: livePulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes livePulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .match-thumb-wrap {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .match-thumb {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            transition: transform 0.4s;
+            display: block;
+        }
+
+        .match-card:hover .match-thumb {
+            transform: scale(1.05);
+        }
+
+        .thumb-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 60%);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 11px;
+            border-radius: 5px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            z-index: 3;
+        }
+
+        .badge-live {
+            background: var(--red);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-live .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #fff;
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.2
+            }
+        }
+
+        .badge-ft {
+            background: #333;
+            color: #aaa;
+        }
+
+        .badge-upcoming {
+            background: #1a3a5c;
+            color: #5bc0f8;
+        }
+
+        .score-pill {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            z-index: 3;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .match-info {
+            padding: 16px;
+        }
+
+        .teams-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .team-logo {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .match-title {
+            font-size: 0.97rem;
+            color: #fff;
+            font-weight: 600;
+            text-align: center;
+            flex: 1;
+            line-height: 1.3;
+        }
+
+        .match-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 10px;
+            margin-bottom: 14px;
+        }
+
+        .match-meta .league-tag {
+            background: rgba(255, 44, 31, 0.1);
+            color: var(--red);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+        }
+
+        .host-btn {
+            width: 100%;
+            padding: 11px;
+            background: rgba(255, 44, 31, 0.08);
+            color: var(--red);
+            border: 1px solid rgba(255, 44, 31, 0.35);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.25s;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .host-btn:hover {
+            background: var(--red);
+            color: #fff;
+            border-color: var(--red);
+        }
+
+        .host-btn i {
+            font-size: 1.1rem;
+        }
+
+        /* ── LOADER ── */
+        .loader {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 80px 20px;
+            grid-column: 1/-1;
+        }
+
+        .loader-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(255, 44, 31, 0.2);
+            border-top-color: var(--red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            grid-column: 1/-1;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--red);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* ── REFRESH TOAST ── */
+        .refresh-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #111;
+            border: 1px solid rgba(255, 44, 31, 0.4);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            z-index: 9999;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: 0.3s;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .refresh-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .refresh-toast i {
+            color: var(--red);
+            font-size: 1.1rem;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 600px) {
+            .sports-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem 4%;
+            }
+
+            .league-tabs {
+                padding: 1rem 4% 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="index.html" class="logo">
+            <img src="img/pic2.jpg" alt="Film+" style="width:50px;height:40px;border-radius:7px 9px;">
+            <span>Film<span style="color:#ff2c1f">+</span></span>
+        </a>
+        <ul class="navbar">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="sports.html" class="active" style="color:#ff2c1f">Sports <i
+                        class='bx bx-radio-circle-marked bx-burst'></i></a></li>
+        </ul>
+    </header>
+
+    <!-- HERO -->
+    <div class="sports-hero">
+        <div class="sports-hero-content">
+            <div class="hero-eyebrow">Live Now</div>
+            <h1>SPORTS <span>ZONE</span></h1>
+            <p class="hero-sub">Watch live football & host real-time parties with friends</p>
+            <div class="refresh-bar">
+                <span>Auto-refreshing in</span>
+                <span class="countdown" id="refreshCountdown">60s</span>
+                <button class="refresh-btn" id="manualRefreshBtn"><i class='bx bx-refresh'></i> Refresh Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEAGUE FILTER TABS -->
+    <div class="league-tabs" id="leagueTabs">
+        <button class="tab-btn active" data-filter="all">All Leagues</button>
+    </div>
+
+    <!-- GRID -->
+    <div class="sports-grid" id="sportsGrid">
+        <div class="loader" id="loading">
+            <div class="loader-spinner"></div>
+            <div>Fetching live matches…</div>
+        </div>
+    </div>
+
+    <!-- REFRESH TOAST -->
+    <div class="refresh-toast" id="refreshToast">
+        <i class='bx bx-refresh'></i> Scores updated
+    </div>
+
+    <script>
+        const LEAGUES = [
+            { name: 'Premier League', slug: 'soccer/eng.1', abbr: 'EPL' },
+            { name: 'La Liga', slug: 'soccer/esp.1', abbr: 'La Liga' },
+            { name: 'Champions League', slug: 'soccer/uefa.champions', abbr: 'UCL' },
+            { name: 'Serie A', slug: 'soccer/ita.1', abbr: 'Serie A' },
+            { name: 'Bundesliga', slug: 'soccer/ger.1', abbr: 'Bundesliga' },
+        ];
+        const THUMBS = [
+            'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600',
+            'https://images.unsplash.com/photo-1518605368461-1ee7e5302a40?q=80&w=600',
+            'https://images.unsplash.com/photo-1556056504-5c7696c4c28d?q=80&w=600',
+            'https://images.unsplash.com/photo-1587329310686-91414b8e3cb7?q=80&w=600',
+        ];
+        let thumbIdx = 0;
+        const thumb = () => THUMBS[thumbIdx++ % THUMBS.length];
+
+        let refreshTimer = 60;
+        let refreshInterval, countdownInterval;
+        let currentFilter = 'all';
+        let isFirstLoad = true;
+
+        function statusInfo(event) {
+            const state = event.status?.type?.state;
+            const label = state === 'in' ? 'LIVE' : state === 'post' ? 'FT' : 'UPCOMING';
+            const cls = state === 'in' ? 'badge-live' : state === 'post' ? 'badge-ft' : 'badge-upcoming';
+            return { label, cls, isLive: state === 'in' };
+        }
+
+        function getScore(event) {
+            const comps = event.competitions?.[0]?.competitors || [];
+            if (comps.length < 2) return '';
+            const [a, b] = comps;
+            if (event.status?.type?.state === 'pre') return 'vs';
+            return `${a.score ?? '-'} – ${b.score ?? '-'}`;
+        }
+
+        function fmtDate(event) {
+            return new Date(event.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function buildCards(results) {
+            const grid = document.getElementById('sportsGrid');
+            grid.innerHTML = '';
+            const tabs = document.getElementById('leagueTabs');
+
+            // Rebuild league tabs
+            tabs.innerHTML = `<button class="tab-btn ${currentFilter === 'all' ? 'active' : ''}" data-filter="all">All Leagues</button>`;
+
+            let total = 0;
+
+            results.forEach(({ league, events }) => {
+                if (events.length) {
+                    const tabEl = document.createElement('button');
+                    tabEl.className = 'tab-btn' + (currentFilter === league.name ? ' active' : '');
+                    tabEl.dataset.filter = league.name;
+                    tabEl.textContent = league.abbr;
+                    tabs.appendChild(tabEl);
+                }
+
+                events.slice(0, 5).forEach(event => {
+                    const comps = event.competitions?.[0]?.competitors || [];
+                    const home = comps.find(c => c.homeAway === 'home') || comps[0] || {};
+                    const away = comps.find(c => c.homeAway === 'away') || comps[1] || {};
+                    const homeTeam = home.team?.displayName || 'Home';
+                    const awayTeam = away.team?.displayName || 'Away';
+                    const homeLogo = home.team?.logo || '';
+                    const awayLogo = away.team?.logo || '';
+                    const title = `${homeTeam} vs ${awayTeam}`;
+                    const imgUrl = home.team?.logo || thumb();
+                    const { label, cls, isLive } = statusInfo(event);
+                    const score = getScore(event);
+                    const dateStr = fmtDate(event);
+                    // Build embed src as a plain string — no nested template literals
+                    const ytSrc = 'https://www.youtube.com/embed?listType=search&list=' + encodeURIComponent(title + ' highlights');
+                    const embedHtml = '<iframe width="100%" height="100%" src="' + ytSrc + '" frameborder="0" allow="autoplay;encrypted-media" allowfullscreen></iframe>';
+                    const encodedEmbed = encodeURIComponent(embedHtml);
+
+                    // Fallback thumb chosen now so it doesn't shift index mid-render
+                    const fallbackThumb = thumb();
+
+                    const card = document.createElement('div');
+                    card.className = 'match-card' + (isLive ? ' is-live' : '');
+                    card.dataset.league = league.name;
+                    if (currentFilter !== 'all' && currentFilter !== league.name) {
+                        card.classList.add('hidden');
+                    }
+
+                    // Score pill HTML built separately to avoid nesting
+                    const scorePillHtml = score ? '<div class="score-pill">' + score + '</div>' : '';
+                    const liveDoHtml = isLive ? '<span class="dot"></span>' : '';
+                    const homeLogoHtml = homeLogo ? '<img src="' + homeLogo + '" class="team-logo" alt="' + homeTeam + '" onerror="this.style.display=\'none\'">' : '';
+                    const awayLogoHtml = awayLogo ? '<img src="' + awayLogo + '" class="team-logo" alt="' + awayTeam + '" onerror="this.style.display=\'none\'">' : '';
+
+                    card.innerHTML =
+                        '<div class="match-thumb-wrap">' +
+                        '<img src="' + imgUrl + '" class="match-thumb" alt="' + title + '" onerror="this.src=\'' + fallbackThumb + '\'">' +
+                        '<div class="thumb-overlay"></div>' +
+                        '<div class="status-badge ' + cls + '">' + liveDoHtml + label + '</div>' +
+                        scorePillHtml +
+                        '</div>' +
+                        '<div class="match-info">' +
+                        '<div class="teams-row">' +
+                        homeLogoHtml +
+                        '<div class="match-title">' + title + '</div>' +
+                        awayLogoHtml +
+                        '</div>' +
+                        '<div class="match-meta">' +
+                        '<span class="league-tag">' + league.abbr + '</span>' +
+                        '<span><i class="bx bx-calendar-event"></i> ' + dateStr + '</span>' +
+                        '</div>' +
+                        '<button class="host-btn" onclick="hostSportsParty(' + JSON.stringify(title) + ',' + JSON.stringify(encodedEmbed) + ')">' +
+                        '<i class="bx bx-group"></i> Host Watch Party' +
+                        '</button>' +
+                        '</div>';
+                    grid.appendChild(card);
+                    total++;
+                });
+            });
+
+            if (total === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class='bx bx-football'></i>
+                        <p style="font-size:1.1rem;color:#fff;margin-bottom:6px;">No matches right now</p>
+                        <p>Check back on a match day — we update every minute!</p>
+                    </div>`;
+            }
+
+            // Tab click events
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentFilter = btn.dataset.filter;
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.querySelectorAll('.match-card').forEach(card => {
+                        if (currentFilter === 'all' || card.dataset.league === currentFilter) {
+                            card.classList.remove('hidden');
+                        } else {
+                            card.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+        }
+
+        async function fetchMatches(silent = false) {
+            if (!silent) {
+                document.getElementById('sportsGrid').innerHTML = `
+                    <div class="loader" id="loading">
+                        <div class="loader-spinner"></div>
+                        <div>Fetching live matches…</div>
+                    </div>`;
+            }
+
+            const fetches = LEAGUES.map(league =>
+                fetch(`https://site.api.espn.com/apis/site/v2/sports/${league.slug}/scoreboard`)
+                    .then(r => r.ok ? r.json() : null)
+                    .then(data => ({ league, events: data?.events || [] }))
+                    .catch(() => ({ league, events: [] }))
+            );
+
+            const results = await Promise.all(fetches);
+            buildCards(results);
+
+            if (!isFirstLoad) {
+                const toast = document.getElementById('refreshToast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            }
+            isFirstLoad = false;
+        }
+
+        function startCountdown() {
+            refreshTimer = 60;
+            document.getElementById('refreshCountdown').textContent = refreshTimer + 's';
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                refreshTimer--;
+                document.getElementById('refreshCountdown').textContent = refreshTimer + 's';
+                if (refreshTimer <= 0) {
+                    clearInterval(countdownInterval);
+                    fetchMatches(true).then(startCountdown);
+                }
+            }, 1000);
+        }
+
+        document.getElementById('manualRefreshBtn').addEventListener('click', () => {
+            clearInterval(countdownInterval);
+            fetchMatches(false).then(startCountdown);
+        });
+
+        // Init
+        fetchMatches().then(startCountdown);
+    </script>
+
+    <script>
+        function hostSportsParty(title, embedHtml) {
+            const partyId = 'sport-' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('currentSportsEmbed', embedHtml);
+            const p = new URLSearchParams({ party: partyId, title, host: '1' });
+            window.location.href = `sports-party.html?${p.toString()}`;
+        }
+    </script>
+</body>
+
+</html>

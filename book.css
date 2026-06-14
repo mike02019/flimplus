@@ -1,0 +1,257 @@
+:root {
+            --primary: #ff4d6d;
+            --secondary: #ff758f;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --accent: #38b6ff;
+        }
+
+        
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        
+        /* Movie selection section */
+        .movie-selection {
+            margin-bottom: 3rem;
+        }
+        
+        .movie-selection h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+        
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .movie-card {
+            background: rgba(43, 45, 66, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(255, 77, 109, 0.2);
+        }
+        
+        .movie-card.selected {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 0 4px rgba(56, 182, 255, 0.3);
+        }
+        
+        .movie-poster {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+        
+        .movie-info {
+            padding: 1.2rem;
+        }
+        
+        .movie-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .movie-info p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .rating {
+            display: flex;
+            align-items: center;
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+        
+        /* Booking form styles */
+        .booking-form {
+            background: rgba(43, 45, 66, 0.8);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .booking-form h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            font-size: 1.8rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-group input, 
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus {
+            outline: 2px solid var(--accent);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3);
+        }
+        
+        /* Confirmation section */
+        .confirmation {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(56, 182, 255, 0.1);
+            border-radius: 15px;
+            margin-top: 2rem;
+            border: 1px solid var(--accent);
+        }
+        
+        .confirmation h3 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .confirmation p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .countdown {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin: 1.5rem 0;
+            font-weight: 600;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(150%);
+            transition: transform 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            max-width: 350px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification i {
+            margin-right: 0.8rem;
+            font-size: 1.8rem;
+        }
+        
+        .notification-content h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .movie-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .booking-form {
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .movie-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                padding: 1rem;
+            }
+            
+            .navbar {
+                display: none;
+            }
+        }

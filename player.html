@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Film+ / Now Playing</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="img/pic2.jpg" type="image/x-icon">
+  <script src="https://checkout.flutterwave.com/v3.js" defer></script>
+
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --red: #ff2c1f;
+      --red-dim: rgba(255, 44, 31, 0.18);
+      --red-glow: rgba(255, 44, 31, 0.5);
+      --bg: #07070a;
+      --surface: #111117;
+      --surface2: #1a1a24;
+      --border: rgba(255, 255, 255, 0.07);
+      --text: #f0f0f5;
+      --muted: rgba(240, 240, 245, 0.45);
+      --radius: 14px;
+      --font: 'Outfit', sans-serif;
+      --mono: 'Space Mono', monospace;
+      --header-h: 64px;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+    }
+
+    /* ── Cinematic grain overlay ──────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* ── Header ──────────────────────────────────────────────────── */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(16px, 4vw, 48px);
+      background: linear-gradient(to bottom, rgba(7, 7, 10, 0.98), rgba(7, 7, 10, 0.6));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .logo img {
+      width: 40px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .logo-text {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    .logo-text span {
+      color: var(--red);
+    }
+
+    /* Desktop nav */
+    .navbar {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .navbar a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .navbar a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--red);
+      transition: width 0.3s;
+    }
+
+    .navbar a:hover {
+      color: var(--text);
+    }
+
+    .navbar a:hover::after {
+      width: 100%;
+    }
+
+    /* Header right */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .notifications-badge {
+      display: none;
+    }
+
+    /* Auth button */
+    #authButton {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--red);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    #authButton:hover {
+      background: #e02418;
+      transform: translateY(-1px);
+    }
+
+    /* Profile wrapper */
+    .profile-pic-wrapper {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .profile-initials {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), #ff6b60);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    #profilePicHeader {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      object-fit: cover;
+      display: none;
+    }
+
+    .status-indicator {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      background: #2ecc71;
+    }
+
+    /* Dropdown */
+    .auth-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      min-width: 260px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+
+    .auth-dropdown.open {
+      display: block;
+    }
+
+    .dropdown-header {
+      padding: 16px;
+      background: linear-gradient(135deg, var(--red), #ff4b2b);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    #dropdownUsername {
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    #userEmail {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.78rem;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: background 0.15s;
+      position: relative;
+    }
+
+    .dropdown-item i {
+      color: var(--red);
+      font-size: 1.1rem;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .item-badge {
+      position: absolute;
+      right: 16px;
+      background: var(--red-dim);
+      color: var(--red);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      width: 100%;
+      background: transparent;
+      color: var(--red);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      font-size: 0.875rem;
+      font-family: var(--font);
+      transition: background 0.15s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 44, 31, 0.08);
+    }
+
+    /* Mobile hamburger */
+    #menu-icon {
+      display: none;
+      font-size: 26px;
+      cursor: pointer;
+      color: var(--text);
+      background: none;
+      border: none;
+    }
+
+    /* ── Player Page Layout ──────────────────────────────────────── */
+    .player-page {
+      min-height: 100vh;
+      padding-top: var(--header-h);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Video Stage ─────────────────────────────────────────────── */
+    .video-stage {
+      position: relative;
+      width: 100%;
+      background: #000;
+      /* Glow halo */
+      box-shadow: 0 0 80px -10px rgba(255, 44, 31, 0.2);
+    }
+
+    video#videoPlayer {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - var(--header-h) - 56px);
+      background: #000;
+      outline: none;
+    }
+
+    /* Fullscreen button */
+    .fs-hint {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.7rem;
+      font-family: var(--mono);
+      padding: 4px 8px;
+      border-radius: 6px;
+      pointer-events: none;
+      letter-spacing: 0.04em;
+      opacity: 0;
+      animation: fadeHint 4s 1.2s forwards;
+    }
+
+    @keyframes fadeHint {
+      0% {
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      80% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* Close button */
+    #closeBtn {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 10;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.15s;
+      backdrop-filter: blur(6px);
+    }
+
+    #closeBtn:hover {
+      background: var(--red);
+      transform: scale(1.08);
+    }
+
+    /* ── Controls Bar ────────────────────────────────────────────── */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 14px clamp(14px, 3vw, 32px);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .controls-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Now-playing pill */
+    .now-playing-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--red-dim);
+      border: 1px solid var(--red-glow);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--red);
+      letter-spacing: 0.03em;
+    }
+
+    .dot-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(0.75);
+      }
+    }
+
+    /* Download button */
+    #downloadLink {
+      display: none;
+      /* shown after payment */
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    #downloadLink:hover {
+      border-color: var(--red);
+      background: var(--red-dim);
+    }
+
+    /* Pay button */
+    #payMobileMoney {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      background: linear-gradient(135deg, #00c853, #009624);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: filter 0.2s, transform 0.15s;
+      box-shadow: 0 4px 14px rgba(0, 200, 83, 0.25);
+    }
+
+    #payMobileMoney:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+
+    #payMobileMoney i {
+      font-size: 1rem;
+    }
+
+    /* ── Reactions Panel ─────────────────────────────────────────── */
+    .reactions-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: clamp(16px, 3vw, 32px);
+      background: var(--bg);
+    }
+
+    .reactions-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Emoji bar */
+    #playerEmojiBar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* Emoji buttons are created by JS; we override with CSS class injection */
+    .emoji-btn {
+      width: 44px;
+      height: 44px;
+      font-size: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s, border-color 0.15s, background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .emoji-btn:hover {
+      transform: scale(1.2) rotate(-5deg);
+      border-color: var(--red-glow);
+      background: var(--red-dim);
+    }
+
+    .emoji-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* Reactions list */
+    #playerReactionsList {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      min-height: 52px;
+    }
+
+    #playerReactionsList li {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 6px 14px;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.6) translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* ── Mobile Responsiveness ────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .navbar {
+        display: none;
+      }
+
+      #menu-icon {
+        display: flex;
+      }
+
+      /* Mobile nav drawer */
+      .navbar.open {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: fixed;
+        top: var(--header-h);
+        left: 0;
+        right: 0;
+        background: rgba(7, 7, 10, 0.98);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 0;
+        z-index: 999;
+      }
+
+      .navbar.open li {
+        width: 100%;
+      }
+
+      .navbar.open a {
+        display: block;
+        padding: 14px 24px;
+        font-size: 1rem;
+      }
+
+      .navbar.open a::after {
+        display: none;
+      }
+
+      video#videoPlayer {
+        aspect-ratio: 16 / 9;
+        max-height: 56vw;
+      }
+
+      .controls-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .controls-left {
+        flex-wrap: wrap;
+      }
+
+      #payMobileMoney,
+      #downloadLink {
+        width: 100%;
+        justify-content: center;
+      }
+
+      #playerEmojiBar {
+        justify-content: center;
+      }
+
+      .emoji-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.3rem;
+      }
+
+      #playerReactionsList {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 0 14px;
+      }
+
+      .logo-text {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <header>
+    <a href="index.html" class="logo">
+      <img src="img/pic2.jpg" alt="Film+">
+      <span class="logo-text">Film<span>+</span></span>
+    </a>
+
+    <ul class="navbar" id="navbarMenu">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#movies">Movies</a></li>
+      <li><a href="index.html#coming">Coming Soon</a></li>
+      <li><a href="index.html#newsletter">Newsletter</a></li>
+    </ul>
+
+    <div class="header-right">
+      <button id="menu-icon" aria-label="Toggle menu">
+        <i class='bx bx-menu'></i>
+      </button>
+
+      <div class="notifications-badge" id="notificationsBadge">
+        <span class="badge-count">0</span>
+      </div>
+
+      <a href="login.html" class="btn" id="authButton">
+        <i class='bx bx-user-circle'></i>
+        <span id="authButtonText">Register</span>
+      </a>
+
+      <div class="profile-pic-wrapper" id="profilePicWrapper">
+        <div id="profileInitialsHeader" class="profile-initials" style="display:none;">U</div>
+        <img id="profilePicHeader" src="img/pic2.jpg" alt="">
+        <div class="status-indicator" id="onlineStatus"></div>
+
+        <div id="userDropdown" class="auth-dropdown">
+          <div class="dropdown-header">
+            <div class="user-info">
+              <img id="dropdownProfilePic" src="img/pic2.jpg" alt=""
+                style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+              <div class="user-details">
+                <span id="dropdownUsername">Username</span>
+                <small id="userEmail">user@example.com</small>
+              </div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a href="profile.html" class="dropdown-item"><i class='bx bxs-user'></i> Profile</a>
+          <a href="profile.html#history" class="dropdown-item">
+            <i class='bx bx-history'></i> Watch History
+            <span class="item-badge" id="watchCount">0</span>
+          </a>
+          <a href="profile.html#favorites" class="dropdown-item">
+            <i class='bx bx-heart'></i> My List
+            <span class="item-badge" id="favoritesCount">0</span>
+          </a>
+          <a href="profile.html#settings" class="dropdown-item"><i class='bx bx-cog'></i> Settings</a>
+          <div class="dropdown-divider"></div>
+          <button id="logoutBtn" class="dropdown-item logout-btn">
+            <i class='bx bx-log-out'></i> Log Out
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Player Page ─────────────────────────────────────────────── -->
+  <main class="player-page">
+
+    <!-- Video Stage -->
+    <div class="video-stage">
+      <button id="closeBtn" title="Back">
+        <i class='bx bx-arrow-back'></i>
+      </button>
+
+      <video id="videoPlayer" controls autoplay playsinline></video>
+
+      <div class="fs-hint">Press F for fullscreen</div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+      <div class="controls-left">
+        <div class="now-playing-pill">
+          <span class="dot-pulse"></span>
+          NOW PLAYING
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button id="payMobileMoney" type="button">
+          <i class='bx bx-mobile-alt'></i>
+          Pay to Download (GHS 10)
+        </button>
+
+        <a id="downloadLink" href="#" download>
+          <i class='bx bx-download'></i>
+          Download Movie
+        </a>
+      </div>
+    </div>
+
+    <!-- Reactions Panel -->
+    <div class="reactions-panel">
+      <div class="reactions-title">React to this scene</div>
+      <div id="playerEmojiBar"></div>
+
+      <div class="reactions-title" style="margin-top:4px;">Recent reactions</div>
+      <ul id="playerReactionsList"></ul>
+    </div>
+  </main>
+
+  <!-- Paystack SDK (kept for compatibility) -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+
+  <script>
+    /* ── Mobile nav toggle ─────────────────────────────────────── */
+    const menuIcon = document.getElementById('menu-icon');
+    const navbarMenu = document.getElementById('navbarMenu');
+    menuIcon?.addEventListener('click', () => {
+      navbarMenu.classList.toggle('open');
+      menuIcon.querySelector('i').className =
+        navbarMenu.classList.contains('open') ? 'bx bx-x' : 'bx bx-menu';
+    });
+
+    /* ── Profile dropdown toggle ───────────────────────────────── */
+    const profileWrapper = document.getElementById('profilePicWrapper');
+    profileWrapper?.addEventListener('click', e => {
+      document.getElementById('userDropdown')?.classList.toggle('open');
+      e.stopPropagation();
+    });
+    document.addEventListener('click', () => {
+      document.getElementById('userDropdown')?.classList.remove('open');
+    });
+
+    /* ── Player core ───────────────────────────────────────────── */
+    const params = new URLSearchParams(window.location.search);
+    const src = params.get('src');
+    const player = document.getElementById('videoPlayer');
+    const closeBtn = document.getElementById('closeBtn');
+    const downloadLink = document.getElementById('downloadLink');
+
+    const EMOJIS = ['😂', '😮', '😍', '👍', '👎', '🎉', '😢', '🔥'];
+    const emojiBar = document.getElementById('playerEmojiBar');
+    const reactionsList = document.getElementById('playerReactionsList');
+    let videoKey = '';
+
+    /* Reactions helpers */
+    function getReactions() {
+      if (!videoKey) return [];
+      try { return JSON.parse(localStorage.getItem('playerReactions_' + videoKey)) || []; }
+      catch { return []; }
+    }
+    function saveReactions(r) {
+      if (videoKey) localStorage.setItem('playerReactions_' + videoKey, JSON.stringify(r));
+    }
+    function renderReactions() {
+      reactionsList.innerHTML = '';
+      getReactions().slice(-6).forEach(({ user, emoji, time }) => {
+        const li = document.createElement('li');
+
+        const eSpan = document.createElement('span');
+        eSpan.textContent = emoji;
+        eSpan.style.fontSize = '1.4rem';
+
+        const uSpan = document.createElement('span');
+        uSpan.textContent = user;
+        uSpan.style.cssText = 'font-size:.82rem;font-weight:600;color:rgba(240,240,245,.6)';
+
+        li.appendChild(eSpan);
+        li.appendChild(uSpan);
+        reactionsList.appendChild(li);
+      });
+    }
+    function addReaction(emoji) {
+      const reactions = getReactions();
+      reactions.push({ user: 'You', emoji, time: Math.floor(player.currentTime) });
+      saveReactions(reactions);
+      renderReactions();
+    }
+
+    /* Build emoji buttons */
+    EMOJIS.forEach(emoji => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = emoji;
+      btn.className = 'emoji-btn';
+      btn.addEventListener('click', () => addReaction(emoji));
+      emojiBar.appendChild(btn);
+    });
+
+    /* Load video */
+    if (src) {
+      const decoded = decodeURIComponent(src);
+      player.src = decoded;
+      downloadLink.href = decoded;
+      videoKey = btoa(decoded);
+      renderReactions();
+    }
+
+    /* Close / back */
+    closeBtn.addEventListener('click', () => {
+      player.pause();
+      player.removeAttribute('src');
+      player.load();
+      sessionStorage.setItem('skipAlert', 'true');
+      window.history.back();
+    });
+
+    /* Keyboard: F = fullscreen */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'f' || e.key === 'F') {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else player.requestFullscreen?.();
+      }
+    });
+
+    /* ── Flutterwave payment ──────────────────────────────────── */
+    document.getElementById('payMobileMoney').addEventListener('click', function () {
+      FlutterwaveCheckout({
+        public_key: 'FLWPUBK_TEST-4eb38c74232dfc3497f6a93a5977249b-X',
+        tx_ref: 'MMO-' + Date.now(),
+        amount: 10,
+        currency: 'GHS',
+        payment_options: 'mobilemoneyghana,mobilemoneyuganda,mpesa',
+        customer: { email: 'user@example.com', phone_number: '233XXXXXXXXX', name: 'Test User' },
+        callback: function () {
+          downloadLink.style.display = 'flex';
+        },
+        onclose: function () {
+          // silently cancelled
+        },
+        customizations: {
+          title: 'Film+ Downloads',
+          description: 'Pay to download movie',
+          logo: 'img/pic2.jpg'
+        },
+      });
+    });
+
+    player.volume = 1.0;
+  </script>
+
+  <!-- main.js handles auth UI (profile pic, logout, etc.) -->
+  <script src="main.js"></script>
+</body>
+
+</html>
