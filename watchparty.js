@@ -179,6 +179,9 @@
         partyRef = db.ref('parties/' + partyId);
         cleanupListeners();
 
+        // ── ABR quality monitor: give it the Firebase reference ──
+        if (window.filmPlusABR) window.filmPlusABR.setPartyRef(partyRef);
+
         /* ── Member presence ─────────────────────────────────────────── */
         const memberRef = partyRef.child('members/' + _clientId);
         memberRef.set({
@@ -558,6 +561,9 @@
         clearInterval(_heartbeat);
         _heartbeat = null;
         cleanupListeners();
+
+        // ── Stop ABR quality monitoring when the party closes ──
+        if (window.filmPlusABR) window.filmPlusABR.stop();
 
         if (partyRef && _clientId) {
             partyRef.child('members/' + _clientId).remove();
