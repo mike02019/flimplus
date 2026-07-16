@@ -32,31 +32,31 @@
 
     /* ── FIREBASE CONFIG (same project as watchparty.js) ──────────────── */
     const FIREBASE_CONFIG = {
-        apiKey:            'AIzaSyAtLmMjP9erQryr9-KtSl4MGoDMefjwlXk',
-        authDomain:        'filmpluspro-fd8dd.firebaseapp.com',
-        databaseURL:       'https://filmpluspro-fd8dd-default-rtdb.firebaseio.com',
-        projectId:         'filmpluspro-fd8dd',
-        storageBucket:     'filmpluspro-fd8dd.firebasestorage.app',
+        apiKey: 'AIzaSyAtLmMjP9erQryr9-KtSl4MGoDMefjwlXk',
+        authDomain: 'filmpluspro-fd8dd.firebaseapp.com',
+        databaseURL: 'https://filmpluspro-fd8dd-default-rtdb.firebaseio.com',
+        projectId: 'filmpluspro-fd8dd',
+        storageBucket: 'filmpluspro-fd8dd.firebasestorage.app',
         messagingSenderId: '533291220327',
-        appId:             '1:533291220327:web:d78546974a26ca945203c2',
+        appId: '1:533291220327:web:d78546974a26ca945203c2',
     };
     /* ───────────────────────────────────────────────────────────────────── */
 
     /* ── State ───────────────────────────────────────────────────────────── */
-    let db          = null;
-    let storage     = null;
-    let partyRef    = null;
-    let _listeners  = [];
-    let _heartbeat  = null;
-    let _clientId   = null;
-    let _isHost     = false;
-    let _partyId    = null;
+    let db = null;
+    let storage = null;
+    let partyRef = null;
+    let _listeners = [];
+    let _heartbeat = null;
+    let _clientId = null;
+    let _isHost = false;
+    let _partyId = null;
     let _suppressSync = false;
     let _joinTimestamp = 0;
 
     /* ── Grab globals injected by uploadparty.html ───────────────────────── */
-    const _hostMode  = window._upHostMode;
-    const _player    = window._upPlayer;
+    const _hostMode = window._upHostMode;
+    const _player = window._upPlayer;
 
     /* ── SDK loader ──────────────────────────────────────────────────────── */
     function loadScript(src) {
@@ -77,7 +77,7 @@
         await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js');
         if (!window.firebase) throw new Error('Firebase SDK failed to load');
         if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-        db      = firebase.database();
+        db = firebase.database();
         storage = firebase.storage();
     }
 
@@ -88,33 +88,33 @@
         try {
             const ud = JSON.parse(localStorage.getItem('userData'));
             if (ud && ud.name) return ud.name;
-        } catch (_) {}
+        } catch (_) { }
         return 'Guest';
     }
 
     function cleanupListeners() {
-        _listeners.forEach(fn => { try { fn(); } catch (_) {} });
+        _listeners.forEach(fn => { try { fn(); } catch (_) { } });
         _listeners = [];
     }
 
     /* ── UI transitions ──────────────────────────────────────────────────── */
-    function showLobby()   { document.getElementById('upLobby').hidden = false;   document.getElementById('upWaiting').hidden = true;  document.getElementById('wpStage').style.display = 'none'; }
-    function showWaiting() { document.getElementById('upLobby').hidden = true;    document.getElementById('upWaiting').hidden = false;  document.getElementById('wpStage').style.display = 'none'; }
-    function showStage()   { document.getElementById('upLobby').hidden = true;    document.getElementById('upWaiting').hidden = true;   document.getElementById('wpStage').style.display = ''; }
+    function showLobby() { document.getElementById('upLobby').hidden = false; document.getElementById('upWaiting').hidden = true; document.getElementById('wpStage').style.display = 'none'; }
+    function showWaiting() { document.getElementById('upLobby').hidden = true; document.getElementById('upWaiting').hidden = false; document.getElementById('wpStage').style.display = 'none'; }
+    function showStage() { document.getElementById('upLobby').hidden = true; document.getElementById('upWaiting').hidden = true; document.getElementById('wpStage').style.display = ''; }
 
     /* ── Video sync (identical logic to watchparty.js) ───────────────────── */
     function pushSync(action, time, targetClientId) {
         if (!partyRef) return;
         const t = typeof time === 'number' ? time : 0;
         partyRef.child('state').set({
-            paused:    action === 'pause',
-            time:      t,
+            paused: action === 'pause',
+            time: t,
             updatedAt: firebase.database.ServerValue.TIMESTAMP,
         });
         const payload = {
             action,
-            time:      t,
-            senderId:  _clientId,
+            time: t,
+            senderId: _clientId,
             updatedAt: firebase.database.ServerValue.TIMESTAMP,
         };
         if (targetClientId) payload.targetClientId = targetClientId;
@@ -126,7 +126,7 @@
         if (!player) return;
         _suppressSync = true;
         const targetTime = typeof data.time === 'number' ? data.time : 0;
-        const needsSeek  = Math.abs(player.currentTime - targetTime) > 0.5;
+        const needsSeek = Math.abs(player.currentTime - targetTime) > 0.5;
 
         function doAfterSeek() {
             if (data.action === 'play') {
@@ -157,7 +157,7 @@
         const player = getPlayer();
         if (player && player._pendingPlay) {
             player._pendingPlay = false;
-            player.play().catch(() => {});
+            player.play().catch(() => { });
             if (typeof setPartySyncStatus === 'function') setPartySyncStatus('Synced with host ✓', 'good');
         }
     });
@@ -174,13 +174,13 @@
         toast.id = '_upGuestPauseToast';
         toast.setAttribute('role', 'alert');
         toast.style.cssText = [
-            'position:fixed','top:50%','left:50%',
-            'transform:translate(-50%,-50%)','z-index:99999',
+            'position:fixed', 'top:50%', 'left:50%',
+            'transform:translate(-50%,-50%)', 'z-index:99999',
             'background:linear-gradient(135deg,#1c1c28,#14141c)',
             'border:1.5px solid rgba(255,44,31,0.55)',
             'box-shadow:0 0 40px rgba(255,44,31,0.25),0 16px 48px rgba(0,0,0,0.7)',
-            'border-radius:16px','padding:22px 28px','max-width:320px',
-            'width:calc(100vw - 48px)','text-align:center',
+            'border-radius:16px', 'padding:22px 28px', 'max-width:320px',
+            'width:calc(100vw - 48px)', 'text-align:center',
             'font-family:Poppins,DM Sans,sans-serif',
             'animation:_upToastIn 0.28s cubic-bezier(0.34,1.2,0.64,1) both',
             'pointer-events:none',
@@ -207,28 +207,28 @@
     function bindHostVideoEvents() {
         const player = getPlayer();
         if (!player) return;
-        player.onplay   = () => { if (_isHost && !_suppressSync) pushSync('play',  player.currentTime); };
-        player.onpause  = () => {
+        player.onplay = () => { if (_isHost && !_suppressSync) pushSync('play', player.currentTime); };
+        player.onpause = () => {
             if (!_isHost && !_suppressSync) {
                 _suppressSync = true;
-                player.play().catch(() => {});
+                player.play().catch(() => { });
                 setTimeout(() => { _suppressSync = false; }, 400);
                 showGuestPauseError();
                 return;
             }
             if (_isHost && !_suppressSync) pushSync('pause', player.currentTime);
         };
-        player.onseeked = () => { if (_isHost && !_suppressSync) pushSync('seek',  player.currentTime); };
+        player.onseeked = () => { if (_isHost && !_suppressSync) pushSync('seek', player.currentTime); };
     }
 
     /* ── Firebase party room setup ───────────────────────────────────────── */
     async function startFirebaseRoom(partyId, isHost, videoUrl, title) {
-        _partyId   = partyId;
-        _isHost    = isHost;
-        _clientId  = 'c-' + Math.random().toString(36).slice(2, 10);
+        _partyId = partyId;
+        _isHost = isHost;
+        _clientId = 'c-' + Math.random().toString(36).slice(2, 10);
         _joinTimestamp = Date.now();
 
-        window.isHost         = isHost;
+        window.isHost = isHost;
         window.currentPartyId = partyId;
 
         if (typeof setPartySyncStatus === 'function') setPartySyncStatus('Connecting…', 'neutral');
@@ -242,6 +242,24 @@
             return;
         }
 
+        // ── Correct _joinTimestamp for client/server clock drift ──
+        // Date.now() is the DEVICE clock, but chat/reaction messages are
+        // stamped with the SERVER clock (ServerValue.TIMESTAMP). If a
+        // device's clock is even a little fast, _joinTimestamp ends up
+        // ahead of the server's real time and every message sent for a
+        // while afterwards gets silently filtered out by startAt() below.
+        // Firebase exposes the live offset at /.info/serverTimeOffset —
+        // read it once and fold it in. A small safety buffer is
+        // subtracted so messages sent right around join time aren't lost
+        // to network latency either.
+        try {
+            const offsetSnap = await db.ref('.info/serverTimeOffset').once('value');
+            const offset = offsetSnap.val() || 0;
+            _joinTimestamp = Date.now() + offset - 3000;
+        } catch (_) {
+            _joinTimestamp = Date.now() - 3000;
+        }
+
         partyRef = db.ref('uploadParties/' + partyId);
         cleanupListeners();
 
@@ -249,13 +267,13 @@
         const memberRef = partyRef.child('members/' + _clientId);
         memberRef.set({
             username: getDisplayName(),
-            role:     isHost ? 'host' : 'guest',
+            role: isHost ? 'host' : 'guest',
             joinedAt: firebase.database.ServerValue.TIMESTAMP,
         });
         memberRef.onDisconnect().remove();
 
         const membersRef = partyRef.child('members');
-        const membersCb  = membersRef.on('value', snap => {
+        const membersCb = membersRef.on('value', snap => {
             const members = [];
             snap.forEach(child => members.push({ clientId: child.key, ...child.val() }));
             if (typeof updateMemberCount === 'function') updateMemberCount(members);
@@ -271,7 +289,7 @@
 
             /* Sync-on-join */
             const joinRef = partyRef.child('joinRequests');
-            const joinCb  = joinRef.on('child_added', snap => {
+            const joinCb = joinRef.on('child_added', snap => {
                 const data = snap.val();
                 if (!data) return;
                 const p = getPlayer();
@@ -285,7 +303,7 @@
                             pushSync('pause', frozenTime, data.clientId);
                             setTimeout(() => {
                                 _suppressSync = true;
-                                p.play().catch(() => {});
+                                p.play().catch(() => { });
                                 setTimeout(() => { _suppressSync = false; }, 400);
                                 pushSync('play', frozenTime, data.clientId);
                             }, 500);
@@ -329,7 +347,7 @@
             });
 
             const syncRef = partyRef.child('sync');
-            const syncCb  = syncRef.on('value', snap => {
+            const syncCb = syncRef.on('value', snap => {
                 const data = snap.val();
                 if (!data || data.senderId === _clientId) return;
                 if (data.targetClientId && data.targetClientId !== _clientId) return;
@@ -339,14 +357,14 @@
             _listeners.push(() => syncRef.off('value', syncCb));
 
             partyRef.child('joinRequests/' + _clientId).set({
-                clientId:    _clientId,
-                user:        getDisplayName(),
+                clientId: _clientId,
+                user: getDisplayName(),
                 requestedAt: firebase.database.ServerValue.TIMESTAMP,
             });
 
             /* Party-ended signal */
             const endedRef = partyRef.child('ended');
-            const endedCb  = endedRef.on('value', snap => {
+            const endedCb = endedRef.on('value', snap => {
                 if (!snap.val()) return;
                 if (typeof addChatMessage === 'function')
                     addChatMessage('System', 'The host has ended the watch party. 👋', 0, false, true);
@@ -361,7 +379,7 @@
 
         /* ── Chat listener ── */
         const chatRef = partyRef.child('chat').orderByChild('sentAt').startAt(_joinTimestamp);
-        const chatCb  = chatRef.on('child_added', snap => {
+        const chatCb = chatRef.on('child_added', snap => {
             const d = snap.val();
             if (!d || d.senderId === _clientId) return;
             if (d.isVoiceNote && d.audioData) {
@@ -376,7 +394,7 @@
 
         /* ── Reaction listener ── */
         const reactRef = partyRef.child('reactions').orderByChild('sentAt').startAt(_joinTimestamp);
-        const reactCb  = reactRef.on('child_added', snap => {
+        const reactCb = reactRef.on('child_added', snap => {
             const d = snap.val();
             if (!d || d.senderId === _clientId) return;
             if (typeof addPartyReaction === 'function') addPartyReaction(d.user, d.reaction, d.time);
@@ -396,33 +414,33 @@
         if (!partyRef) return;
         if (type === 'chat-message') {
             partyRef.child('chat').push({
-                user:      payload.user || getDisplayName(),
-                message:   payload.message || '',
+                user: payload.user || getDisplayName(),
+                message: payload.message || '',
                 timestamp: payload.timestamp || 0,
-                sentAt:    firebase.database.ServerValue.TIMESTAMP,
-                senderId:  _clientId,
+                sentAt: firebase.database.ServerValue.TIMESTAMP,
+                senderId: _clientId,
             });
             return;
         }
         if (type === 'voice-note') {
             partyRef.child('chat').push({
-                user:        payload.user || getDisplayName(),
-                message:     '',
+                user: payload.user || getDisplayName(),
+                message: '',
                 isVoiceNote: true,
-                audioData:   payload.audioData || '',
-                duration:    payload.duration || 0,
-                timestamp:   0,
-                sentAt:      firebase.database.ServerValue.TIMESTAMP,
-                senderId:    _clientId,
+                audioData: payload.audioData || '',
+                duration: payload.duration || 0,
+                timestamp: 0,
+                sentAt: firebase.database.ServerValue.TIMESTAMP,
+                senderId: _clientId,
             });
             return;
         }
         if (type === 'party-reaction') {
             partyRef.child('reactions').push({
-                user:     payload.user || getDisplayName(),
+                user: payload.user || getDisplayName(),
                 reaction: payload.reaction || '',
-                time:     payload.time || 0,
-                sentAt:   firebase.database.ServerValue.TIMESTAMP,
+                time: payload.time || 0,
+                sentAt: firebase.database.ServerValue.TIMESTAMP,
                 senderId: _clientId,
             });
         }
@@ -432,16 +450,16 @@
     window.endUploadParty = function () {
         if (!_isHost || !partyRef) return;
         partyRef.child('chat').push({
-            user:     'System',
-            message:  '🛑 The host has ended the upload party.',
+            user: 'System',
+            message: '🛑 The host has ended the upload party.',
             timestamp: 0,
-            sentAt:   firebase.database.ServerValue.TIMESTAMP,
+            sentAt: firebase.database.ServerValue.TIMESTAMP,
             senderId: _clientId,
             isSystem: true,
         });
         partyRef.child('ended').set({
-            endedAt:  firebase.database.ServerValue.TIMESTAMP,
-            endedBy:  _clientId,
+            endedAt: firebase.database.ServerValue.TIMESTAMP,
+            endedBy: _clientId,
         }).then(() => {
             setTimeout(() => {
                 if (typeof hideWatchPartyModal === 'function') hideWatchPartyModal();
@@ -459,21 +477,21 @@
             console.error('[UploadParty] Firebase init failed in lobby:', err);
         });
 
-        const partyId       = window._upPartyId;
-        const dropZone      = document.getElementById('upDropZone');
-        const fileInput     = document.getElementById('upFileInput');
-        const dropInner     = document.getElementById('upDropInner');
-        const progressWrap  = document.getElementById('upProgressWrap');
-        const progressFill  = document.getElementById('upProgressFill');
-        const progressPct   = document.getElementById('upProgressPct');
+        const partyId = window._upPartyId;
+        const dropZone = document.getElementById('upDropZone');
+        const fileInput = document.getElementById('upFileInput');
+        const dropInner = document.getElementById('upDropInner');
+        const progressWrap = document.getElementById('upProgressWrap');
+        const progressFill = document.getElementById('upProgressFill');
+        const progressPct = document.getElementById('upProgressPct');
         const progressLabel = document.getElementById('upProgressLabel');
-        const progressHint  = document.getElementById('upProgressHint');
-        const titleWrap     = document.getElementById('upTitleWrap');
-        const titleInput    = document.getElementById('upTitleInput');
-        const startBtn      = document.getElementById('upStartBtn');
+        const progressHint = document.getElementById('upProgressHint');
+        const titleWrap = document.getElementById('upTitleWrap');
+        const titleInput = document.getElementById('upTitleInput');
+        const startBtn = document.getElementById('upStartBtn');
 
-        let _selectedFile   = null;
-        let _uploadedUrl    = null;
+        let _selectedFile = null;
+        let _uploadedUrl = null;
 
         /* ── Drag-and-drop ── */
         dropZone.addEventListener('dragover', e => {
@@ -525,14 +543,14 @@
                 uploadTask.on('state_changed',
                     snapshot => {
                         const pct = Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100);
-                        progressFill.style.width  = pct + '%';
-                        progressPct.textContent   = pct + '%';
+                        progressFill.style.width = pct + '%';
+                        progressPct.textContent = pct + '%';
                         progressLabel.textContent = 'Uploading… ' + formatBytes(snapshot.bytesTransferred) + ' / ' + formatBytes(snapshot.totalBytes);
                     },
                     err => {
                         console.error('[UploadParty] Upload error:', err);
                         progressLabel.textContent = '❌ Upload failed: ' + err.message;
-                        progressHint.textContent  = 'Please try again.';
+                        progressHint.textContent = 'Please try again.';
                         startBtn.disabled = false;
                         startBtn.innerHTML = '<i class="bx bx-party"></i> Retry Upload';
                         titleWrap.style.opacity = '1';
@@ -543,16 +561,16 @@
                         _uploadedUrl = downloadURL;
 
                         progressLabel.textContent = '✅ Upload complete! Starting party…';
-                        progressFill.style.width  = '100%';
-                        progressPct.textContent   = '100%';
-                        progressHint.textContent  = '';
+                        progressFill.style.width = '100%';
+                        progressPct.textContent = '100%';
+                        progressHint.textContent = '';
 
                         // Write to DB so guests can see the video is ready
                         const partyRef = db.ref('uploadParties/' + partyId);
                         await partyRef.child('video').set({
                             storageUrl: downloadURL,
-                            title:      title,
-                            ready:      true,
+                            title: title,
+                            ready: true,
                             uploadedAt: firebase.database.ServerValue.TIMESTAMP,
                             uploadedBy: getDisplayName(),
                         });
@@ -643,7 +661,7 @@
     ══════════════════════════════════════════════════════════════════════ */
 
     document.addEventListener('DOMContentLoaded', async () => {
-        const partyId  = window._upPartyId;
+        const partyId = window._upPartyId;
         const hostMode = window._upHostMode;
 
         if (hostMode) {
@@ -677,14 +695,14 @@
 
     /* ── Utility ─────────────────────────────────────────────────────────── */
     function formatBytes(bytes) {
-        if (bytes < 1024)      return bytes + ' B';
-        if (bytes < 1048576)   return (bytes / 1024).toFixed(1) + ' KB';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
         if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
         return (bytes / 1073741824).toFixed(2) + ' GB';
     }
 
     function escHtml(str) {
-        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     console.log('[UploadParty] Firebase upload party loaded — host-upload sync enabled.');

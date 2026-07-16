@@ -176,6 +176,24 @@
             return;
         }
 
+        // ── Correct _joinTimestamp for client/server clock drift ──
+        // Date.now() is the DEVICE clock, but chat/reaction messages are
+        // stamped with the SERVER clock (ServerValue.TIMESTAMP). If a
+        // device's clock is even a little fast, _joinTimestamp ends up
+        // ahead of the server's real time and every message sent for a
+        // while afterwards gets silently filtered out by startAt() below.
+        // Firebase exposes the live offset at /.info/serverTimeOffset —
+        // read it once and fold it in. A small safety buffer is
+        // subtracted so messages sent right around join time aren't lost
+        // to network latency either.
+        try {
+            const offsetSnap = await db.ref('.info/serverTimeOffset').once('value');
+            const offset = offsetSnap.val() || 0;
+            _joinTimestamp = Date.now() + offset - 3000;
+        } catch (_) {
+            _joinTimestamp = Date.now() - 3000;
+        }
+
         partyRef = db.ref('parties/' + partyId);
         cleanupListeners();
 
